@@ -15,10 +15,12 @@
   ~ limitations under the License.
   -->
 
-<!-- From https://github.com/google/android-transition-examples/tree/master/GridToPager -->
-
-<FrameLayout
+<transitionSet
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:duration="375"
+    android:interpolator="@android:interpolator/fast_out_slow_in"
+    android:transitionOrdering="together">
+  <changeClipBounds/>
+  <changeTransform/>
+  <changeBounds/>
+</transitionSet>

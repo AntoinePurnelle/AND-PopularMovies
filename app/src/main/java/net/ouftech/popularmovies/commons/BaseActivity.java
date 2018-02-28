@@ -11,6 +11,7 @@ import android.util.Log;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import icepick.Icepick;
 
 /**
  * Created by antoi on 25-02-18.
@@ -88,6 +89,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         logd(String.format("onCreate %s", this));
         super.onCreate(savedInstanceState);
+        Icepick.restoreInstanceState(this, savedInstanceState);
 
         setRunning(true);
         setContentView(getLayoutId());
@@ -156,6 +158,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         logd(String.format("onSaveInstanceState %s", this));
         super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
     }
 
     @CallSuper

@@ -15,10 +15,15 @@
   ~ limitations under the License.
   -->
 
-<!-- From https://github.com/google/android-transition-examples/tree/master/GridToPager -->
-
-<FrameLayout
+<android.support.v7.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recycler_view"
+    android:scrollbarStyle="outsideOverlay"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:scrollbars="vertical"
+    app:layoutManager="GridLayoutManager"
+    app:spanCount="@integer/grid_span_count"/>

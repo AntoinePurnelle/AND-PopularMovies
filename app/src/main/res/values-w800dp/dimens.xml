@@ -15,10 +15,6 @@
   ~ limitations under the License.
   -->
 
-<!-- From https://github.com/google/android-transition-examples/tree/master/GridToPager -->
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+<resources>
+  <integer name="grid_span_count">5</integer>
+</resources>
