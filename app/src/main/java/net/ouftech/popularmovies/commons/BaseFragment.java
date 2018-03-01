@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.hannesdorfmann.fragmentargs.FragmentArgs;
 
+import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import icepick.Icepick;
 
@@ -119,7 +120,9 @@ public abstract class BaseFragment extends Fragment {
         logd(String.format("onCreateView %s (from %s)", this, getBaseActivity()));
         setRunning(true);
         try {
-            return inflater.inflate(getLayoutId(), container, false);
+            View view = inflater.inflate(getLayoutId(), container, false);
+            unbinder = ButterKnife.bind(this, view);
+            return view;
         } catch (InflateException e) {
             loge(String.format("Error while inflating layout %s with ViewGroup container %s", getLayoutId(), container), e);
             return null;
@@ -177,6 +180,7 @@ public abstract class BaseFragment extends Fragment {
         super.onDestroyView();
 
         setRunning(false);
+        unbinder.unbind();
     }
 
     @CallSuper
