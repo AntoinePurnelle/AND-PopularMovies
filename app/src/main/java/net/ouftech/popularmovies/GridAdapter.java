@@ -33,9 +33,16 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+
 import net.ouftech.popularmovies.GridAdapter.ImageViewHolder;
+import net.ouftech.popularmovies.commons.CollectionUtils;
+import net.ouftech.popularmovies.commons.NetworkUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * A fragment for displaying a grid of images.
@@ -54,13 +61,15 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
     private final RequestManager requestManager;
     private final ViewHolderListener viewHolderListener;
+    private GridFragment gridFragment;
 
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
      */
-    public GridAdapter(Fragment fragment) {
-        this.requestManager = Glide.with(fragment);
-        this.viewHolderListener = new ViewHolderListenerImpl(fragment);
+    public GridAdapter(GridFragment fragment) {
+        this.gridFragment = fragment;
+        this.requestManager = Glide.with(gridFragment);
+        this.viewHolderListener = new ViewHolderListenerImpl(gridFragment);
     }
 
     @Override
@@ -72,12 +81,12 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
     @Override
     public void onBindViewHolder(ImageViewHolder holder, int position) {
-        holder.onBind();
+        holder.onBind(gridFragment.getMovies().get(position));
     }
 
     @Override
     public int getItemCount() {
-        return 10;
+        return CollectionUtils.getSize(gridFragment.getMovies());
     }
 
 
@@ -121,17 +130,19 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
             // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-            ((TransitionSet) fragment.getExitTransition()).excludeTarget(view, true);
+            if (fragment.getExitTransition() != null)
+                ((TransitionSet) fragment.getExitTransition()).excludeTarget(view, true);
 
             ImageView transitioningView = view.findViewById(R.id.card_image);
-            fragment.getFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true) // Optimize for shared element transition
-                    .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, new ImagePagerFragment(), ImagePagerFragment.class
-                            .getSimpleName())
-                    .addToBackStack(null)
-                    .commit();
+            if (fragment.getFragmentManager() != null)
+                fragment.getFragmentManager()
+                        .beginTransaction()
+                        .setReorderingAllowed(true) // Optimize for shared element transition
+                        .addSharedElement(transitioningView, transitioningView.getTransitionName())
+                        .replace(R.id.fragment_container, new ImagePagerFragment(), ImagePagerFragment.class
+                                .getSimpleName())
+                        .addToBackStack(null)
+                        .commit();
         }
     }
 
@@ -141,17 +152,17 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
     static class ImageViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener {
 
-        private final ImageView image;
+        @BindView(R.id.card_image)
+        protected ImageView image;
         private final RequestManager requestManager;
         private final ViewHolderListener viewHolderListener;
 
         ImageViewHolder(View itemView, RequestManager requestManager,
                         ViewHolderListener viewHolderListener) {
             super(itemView);
-            this.image = itemView.findViewById(R.id.card_image);
+            ButterKnife.bind(this, itemView);
             this.requestManager = requestManager;
             this.viewHolderListener = viewHolderListener;
-            itemView.findViewById(R.id.card_view).setOnClickListener(this);
         }
 
         /**
@@ -160,18 +171,18 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
          * The binding will load the image into the image view, as well as set its transition name for
          * later.
          */
-        void onBind() {
+        void onBind(Movie movie) {
             int adapterPosition = getAdapterPosition();
-            setImage(adapterPosition);
+            setImage(adapterPosition, movie);
             // Set the string value of the image resource as the unique transition name for the view.
-            image.setTransitionName("name"+adapterPosition);
-            //image.setTransitionName(String.valueOf(IMAGE_DRAWABLES[adapterPosition]));
+            image.setTransitionName(movie.id);
         }
 
-        void setImage(final int adapterPosition) {
+        void setImage(final int adapterPosition, Movie movie) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
+            String imageURL = NetworkUtils.getW185ImageURL(movie.poster).toString();
             requestManager
-                    .load("http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg")
+                    .load(imageURL)
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,
@@ -190,7 +201,7 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
                     .into(image);
         }
 
-        @Override
+        @OnClick(R.id.card_view)
         public void onClick(View view) {
             // Let the listener start the ImagePagerFragment.
             viewHolderListener.onItemClicked(view, getAdapterPosition());

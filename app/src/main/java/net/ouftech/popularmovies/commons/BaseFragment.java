@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hannesdorfmann.fragmentargs.FragmentArgs;
+
 import butterknife.Unbinder;
 import icepick.Icepick;
 
@@ -105,6 +107,7 @@ public abstract class BaseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         logd(String.format("onCreate %s (from %s)", this, getBaseActivity()));
         super.onCreate(savedInstanceState);
+        FragmentArgs.inject(this);
         Icepick.restoreInstanceState(this, savedInstanceState);
 
         setRunning(true);

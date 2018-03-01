@@ -20,7 +20,6 @@ package net.ouftech.popularmovies;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionInflater;
@@ -30,21 +29,37 @@ import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 
 
+import net.ouftech.popularmovies.commons.BaseFragment;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * A fragment for displaying a grid of images.
  */
-public class GridFragment extends Fragment {
+public class GridFragment extends BaseFragment {
+
+    @NonNull
+    @Override
+    protected String getLotTag() {
+        return "GridFragment";
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.fragment_grid;
+    }
 
     private RecyclerView recyclerView;
+
+    protected ArrayList<Movie> movies;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_grid, container, false);
+        recyclerView = (RecyclerView) super.onCreateView(inflater, container, savedInstanceState);
         recyclerView.setAdapter(new GridAdapter(this));
 
         prepareTransitions();
@@ -57,6 +72,12 @@ public class GridFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         scrollToPosition();
+    }
+
+    public void swapData(ArrayList<Movie> movies) {
+        this.movies = movies;
+        if (recyclerView != null && recyclerView.getAdapter() != null)
+            recyclerView.getAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -99,24 +120,28 @@ public class GridFragment extends Fragment {
      */
     private void prepareTransitions() {
 
-    setExitTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.grid_exit_transition));
+        setExitTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.grid_exit_transition));
 
-    // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
-    setExitSharedElementCallback(
-        new SharedElementCallback() {
-          @Override
-          public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-            // Locate the ViewHolder for the clicked position.
-            RecyclerView.ViewHolder selectedViewHolder = recyclerView
-                .findViewHolderForAdapterPosition(MainActivity.currentPosition);
-            if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
-              return;
-            }
+        // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
+        setExitSharedElementCallback(
+                new SharedElementCallback() {
+                    @Override
+                    public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                        // Locate the ViewHolder for the clicked position.
+                        RecyclerView.ViewHolder selectedViewHolder = recyclerView
+                                .findViewHolderForAdapterPosition(MainActivity.currentPosition);
+                        if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
+                            return;
+                        }
 
-            // Map the first shared element name to the child ImageView.
-            sharedElements
-                .put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.card_image));
-          }
-        });
+                        // Map the first shared element name to the child ImageView.
+                        sharedElements
+                                .put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.card_image));
+                    }
+                });
+    }
+
+    public ArrayList<Movie> getMovies() {
+        return movies;
     }
 }

@@ -1,5 +1,6 @@
 /*
- * Copyright 2018 Google LLC
+ * Parts of this class have been inspired by Google's Android Fragment Transitions: RecyclerView to ViewPager
+ * available at https://github.com/google/android-transition-examples/tree/master/GridToPager
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@
 package net.ouftech.popularmovies;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
@@ -27,7 +29,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import net.ouftech.popularmovies.ImagePagerAdapter;
+
+import net.ouftech.popularmovies.commons.BaseFragment;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +38,18 @@ import java.util.Map;
 /**
  * A fragment for displaying a pager of images.
  */
-public class ImagePagerFragment extends Fragment {
+public class ImagePagerFragment extends BaseFragment {
+
+    @NonNull
+    @Override
+    protected String getLotTag() {
+        return "ImagePagerFragment";
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.fragment_pager;
+    }
 
     private ViewPager viewPager;
 
@@ -43,7 +57,7 @@ public class ImagePagerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        viewPager = (ViewPager) inflater.inflate(R.layout.fragment_pager, container, false);
+        viewPager = (ViewPager) super.onCreateView(inflater, container, savedInstanceState);
         viewPager.setAdapter(new ImagePagerAdapter(this));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
@@ -58,9 +72,8 @@ public class ImagePagerFragment extends Fragment {
         prepareSharedElementTransition();
 
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null)
             postponeEnterTransition();
-        }
 
         return viewPager;
     }
@@ -83,6 +96,9 @@ public class ImagePagerFragment extends Fragment {
                         // visible). To locate the fragment, call instantiateItem with the selection position.
                         // At this stage, the method will simply return the fragment at the position and will
                         // not create a new one.
+                        if (viewPager.getAdapter() == null)
+                            return;
+
                         Fragment currentFragment = (Fragment) viewPager.getAdapter()
                                 .instantiateItem(viewPager, MainActivity.currentPosition);
                         View view = currentFragment.getView();

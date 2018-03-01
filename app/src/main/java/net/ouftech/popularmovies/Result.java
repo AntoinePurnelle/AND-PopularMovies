@@ -2,6 +2,7 @@ package net.ouftech.popularmovies;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,9 +11,9 @@ import java.util.List;
 
 public class Result {
 
-    public static final String PAGE_KEY = "page";
-    public static final String TOTAL_PAGES_KEY = "total_pages";
-    public static final String RESULTS_KEY = "results";
+    private static final String PAGE_KEY = "page";
+    private static final String TOTAL_PAGES_KEY = "total_pages";
+    private static final String RESULTS_KEY = "results";
 
     @SerializedName(PAGE_KEY)
     public int page;
@@ -21,5 +22,5 @@ public class Result {
     public int totalPages;
 
     @SerializedName(RESULTS_KEY)
-    public List<Movie> movies;
+    public ArrayList<Movie> movies;
 }

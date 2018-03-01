@@ -1,5 +1,6 @@
 /*
- * Copyright 2018 Google LLC
+ * Parts of this class have been inspired by Google's Android Fragment Transitions: RecyclerView to ViewPager
+ * available at https://github.com/google/android-transition-examples/tree/master/GridToPager
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,23 +20,29 @@ package net.ouftech.popularmovies;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import net.ouftech.popularmovies.ImageFragment;
+import net.ouftech.popularmovies.commons.CollectionUtils;
 
 
 public class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
-  public ImagePagerAdapter(Fragment fragment) {
-    // Note: Initialize with the child fragment manager.
-    super(fragment.getChildFragmentManager());
-  }
+    private Fragment fragment;
 
-  @Override
-  public int getCount() {
-    return 10;
-  }
+    public ImagePagerAdapter(Fragment fragment) {
+        // Note: Initialize with the child fragment manager.
+        super(fragment.getChildFragmentManager());
+        this.fragment = fragment;
+    }
 
-  @Override
-  public Fragment getItem(int position) {
-    return ImageFragment.newInstance(position);
-  }
+    @Override
+    public int getCount() {
+        if (fragment != null && fragment.getActivity() != null && fragment.getActivity() instanceof MainActivity)
+            return CollectionUtils.getSize(((MainActivity) fragment.getActivity()).getMovies());
+
+        return 0;
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        return ImageFragmentBuilder.newImageFragment(position);
+    }
 }

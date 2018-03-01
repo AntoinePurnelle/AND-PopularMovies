@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2018 Google LLC
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Parts of this layout have been inspired by Google's Android Fragment Transitions: RecyclerView to ViewPager
+  ~ available at https://github.com/google/android-transition-examples/tree/master/GridToPager
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
   ~ limitations under the License.
   -->
 
-<android.support.v7.widget.RecyclerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/recycler_view"
-    android:scrollbarStyle="outsideOverlay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp"
+    android:paddingEnd="@dimen/grid_padding"
+    android:paddingStart="@dimen/grid_padding"
+    android:scrollbarStyle="outsideOverlay"
     android:scrollbars="vertical"
     app:layoutManager="GridLayoutManager"
-    app:spanCount="@integer/grid_span_count"/>
+    app:spanCount="@integer/grid_span_count"
+    android:background="@color/colorPrimary" />

@@ -17,4 +17,10 @@
 
 <resources>
   <integer name="grid_span_count">2</integer>
+  <dimen name="error_message_text_size">20sp</dimen>
+  <dimen name="loading_indicator_size">42dp</dimen>
+  <dimen name="grid_padding">8dp</dimen>
+  <dimen name="card_view_default">2dp</dimen>
+  <dimen name="card_view_height">277dp</dimen>
+  <dimen name="card_view_width">185dp</dimen>
 </resources>
