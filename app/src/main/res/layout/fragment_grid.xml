@@ -18,12 +18,14 @@
 <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/recycler_view"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/colorPrimary"
     android:paddingEnd="@dimen/grid_padding"
     android:paddingStart="@dimen/grid_padding"
     android:scrollbarStyle="outsideOverlay"
     android:scrollbars="vertical"
     app:layoutManager="GridLayoutManager"
-    app:spanCount="@integer/grid_span_count"
-    android:background="@color/colorPrimary" />
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:spanCount="@integer/grid_span_count" />

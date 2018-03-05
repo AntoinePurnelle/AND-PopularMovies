@@ -24,6 +24,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -37,10 +38,8 @@ import net.ouftech.popularmovies.commons.NetworkUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
-import icepick.State;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
@@ -62,6 +61,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected TextView errorMessageDisplay;
     @BindView(R.id.fragment_container)
     protected View gridContainer;
+    @BindView(R.id.toolbar)
+    protected Toolbar toolbar;
 
     private static final String KEY_CURRENT_POSITION = "currentPosition";
     private static final String KEY_MOVIES = "movies";
@@ -94,6 +95,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 .beginTransaction()
                 .add(R.id.fragment_container, gridFragment, GridFragment.class.getSimpleName())
                 .commit();
+
+        setToolbarTitle(getString(R.string.app_name));
     }
 
     private void loadMovies() {
@@ -195,5 +198,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     public ArrayList<Movie> getMovies() {
         return movies;
+    }
+
+    public void setToolbarTitle(String title) {
+        toolbar.setTitle(title);
     }
 }

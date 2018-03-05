@@ -81,7 +81,7 @@ public class ImageFragment extends BaseFragment {
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(this)
-                .load(NetworkUtils.getW342ImageURL(movie.poster))
+                .load(NetworkUtils.getW185ImageURL(movie.poster))
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
