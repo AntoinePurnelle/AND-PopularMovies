@@ -19,14 +19,15 @@ package net.ouftech.popularmovies;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -40,22 +41,44 @@ import net.ouftech.popularmovies.commons.BaseFragment;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 /**
  * A fragment for displaying an image.
  */
 @FragmentWithArgs
-public class ImageFragment extends BaseFragment {
+public class DetailsFragment extends BaseFragment {
+
+    @BindView(R.id.title_tv)
+    AppCompatTextView titleTv;
+    @BindView(R.id.ic_star_1_iv)
+    AppCompatImageView icStar1Iv;
+    @BindView(R.id.ic_star_2_iv)
+    AppCompatImageView icStar2Iv;
+    @BindView(R.id.ic_star_3_iv)
+    AppCompatImageView icStar3Iv;
+    @BindView(R.id.ic_star_4_iv)
+    AppCompatImageView icStar4Iv;
+    @BindView(R.id.ic_star_5_iv)
+    AppCompatImageView icStar5Iv;
+    @BindView(R.id.rating_tv)
+    TextView ratingTv;
+    @BindView(R.id.date_tv)
+    TextView dateTv;
+    @BindView(R.id.overview_tv)
+    TextView overviewTv;
+    Unbinder unbinder;
 
     @NonNull
     @Override
     protected String getLotTag() {
-        return "ImageFragment";
+        return "DetailsFragment";
     }
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_image;
+        return R.layout.fragment_details;
     }
 
     @Arg
@@ -106,6 +129,19 @@ public class ImageFragment extends BaseFragment {
                     }
                 })
                 .into(imageView);
+        unbinder = ButterKnife.bind(this, view);
+
+        titleTv.setText(movie.title);
+        ratingTv.setText(movie.voteAverage);
+        dateTv.setText(movie.releaseDate);
+        overviewTv.setText(movie.overview);
+
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

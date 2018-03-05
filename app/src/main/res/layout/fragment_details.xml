@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Parts of this layout have been inspired by Google's Android Fragment Transitions: RecyclerView to ViewPager
+  ~ available at https://github.com/google/android-transition-examples/tree/master/GridToPager
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical"
+    android:padding="@dimen/default_padding">
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pulp Fiction"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/title_text_size" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ic_star_1_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_star_white_24dp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ic_star_2_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_star_white_24dp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ic_star_3_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_star_white_24dp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ic_star_4_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_star_half_white_24dp" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/ic_star_5_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_star_border_white_24dp" />
+
+        <TextView
+            android:id="@+id/rating_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:paddingEnd="@dimen/default_padding"
+            android:paddingStart="@dimen/default_padding"
+            android:textColor="@color/white"
+            android:textSize="@dimen/subtitle_text_size"
+            tools:text="3.5/5" />
+
+        <TextView
+            android:id="@+id/date_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textColor="@color/white"
+            android:textSize="@dimen/subtitle_text_size"
+            tools:text="1994" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="@dimen/default_padding">
+
+            <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/image"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/card_view_height"
+                android:layout_gravity="center|top"
+                android:layout_weight="1"
+                android:scaleType="fitCenter" />
+
+            <View
+                android:layout_width="@dimen/default_padding"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/overview_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                tools:text="A burger-loving hit man, his philosophical partner, a drug-addled gangster's moll and a washed-up boxer converge in this sprawling, comedic crime caper. Their adventures unfurl in three stories that ingeniously trip back and forth in time." />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

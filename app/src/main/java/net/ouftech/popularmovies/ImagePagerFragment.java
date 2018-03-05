@@ -92,7 +92,7 @@ public class ImagePagerFragment extends BaseFragment {
                 new SharedElementCallback() {
                     @Override
                     public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                        // Locate the image view at the primary fragment (the ImageFragment that is currently
+                        // Locate the image view at the primary fragment (the DetailsFragment that is currently
                         // visible). To locate the fragment, call instantiateItem with the selection position.
                         // At this stage, the method will simply return the fragment at the position and will
                         // not create a new one.
