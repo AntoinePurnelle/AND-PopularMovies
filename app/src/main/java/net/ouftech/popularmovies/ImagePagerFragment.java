@@ -65,7 +65,8 @@ public class ImagePagerFragment extends BaseFragment {
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                MainActivity.currentPosition = position;
+                if (getActivity() != null && getActivity() instanceof MainActivity)
+                    ((MainActivity) getActivity()).setCurrentPosition(position);
             }
         });
 

@@ -79,8 +79,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         Fabric.with(this, new Crashlytics());
         FragmentManager fragmentManager = getSupportFragmentManager();
 
+        setToolbarTitle(getString(R.string.app_name));
+
         if (savedInstanceState != null) {
-            currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
+            setCurrentPosition(savedInstanceState.getInt(KEY_CURRENT_POSITION, 0));
             movies = savedInstanceState.getParcelableArrayList(KEY_MOVIES);
             gridFragment = (GridFragment) fragmentManager.findFragmentByTag(GridFragment.class.getSimpleName());
             gridFragment.swapData(movies);
@@ -95,8 +97,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 .beginTransaction()
                 .add(R.id.fragment_container, gridFragment, GridFragment.class.getSimpleName())
                 .commit();
-
-        setToolbarTitle(getString(R.string.app_name));
     }
 
     private void loadMovies() {
@@ -198,6 +198,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     public ArrayList<Movie> getMovies() {
         return movies;
+    }
+
+    public void setCurrentPosition(int currentPosition) {
+        MainActivity.currentPosition = currentPosition;
     }
 
     public void setToolbarTitle(String title) {

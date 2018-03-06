@@ -51,9 +51,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:drawableEnd="@drawable/ic_sentiment_very_dissatisfied_red_24dp"
+        android:drawablePadding="@dimen/default_padding"
         android:text="@string/error_message"
+        android:textColor="@color/white"
         android:textSize="@dimen/subtitle_text_size"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/pb_loading_indicator"
