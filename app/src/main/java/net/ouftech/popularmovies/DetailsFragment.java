@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,10 @@ import com.hannesdorfmann.fragmentargs.annotation.FragmentWithArgs;
 
 import net.ouftech.popularmovies.commons.BaseFragment;
 import net.ouftech.popularmovies.commons.NetworkUtils;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -133,10 +138,46 @@ public class DetailsFragment extends BaseFragment {
 
         titleTv.setText(movie.title);
         ratingTv.setText(movie.voteAverage);
-        dateTv.setText(movie.releaseDate);
+        dateTv.setText(getLocaleDate(movie.releaseDate));
         overviewTv.setText(movie.overview);
+        displayRatingStars(movie.voteAverage);
 
         return view;
+    }
+
+    private String getLocaleDate(@Nullable String dateString) {
+        if (TextUtils.isEmpty(dateString))
+            return "";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");
+
+        try {
+            Date date = sdf.parse(dateString);
+            java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getContext());
+            return dateFormat.format(date);
+        } catch (ParseException e) {
+            loge(String.format("Error while parsing date %s", dateString), e);
+            return "";
+        }
+    }
+
+    private void displayRatingStars(String ratingString) {
+        int rating = TextUtils.isEmpty(ratingString) ? 0 : (int) Math.round(Float.parseFloat(ratingString));
+
+        initStar(icStar1Iv, rating, 1, 2);
+        initStar(icStar2Iv, rating, 3, 4);
+        initStar(icStar3Iv, rating, 5, 6);
+        initStar(icStar4Iv, rating, 7, 8);
+        initStar(icStar5Iv, rating, 9, 10);
+    }
+
+    private void initStar(@NonNull AppCompatImageView star, int value, int min, int max) {
+        if (value < min)
+            star.setImageResource(R.drawable.ic_star_border_white_24dp);
+        else if (value >= max)
+            star.setImageResource(R.drawable.ic_star_white_24dp);
+        else
+            star.setImageResource(R.drawable.ic_star_half_white_24dp);
     }
 
     @Override
