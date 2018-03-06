@@ -29,6 +29,7 @@ import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 
 
+import net.ouftech.popularmovies.Model.Movie;
 import net.ouftech.popularmovies.commons.BaseFragment;
 
 import java.util.ArrayList;

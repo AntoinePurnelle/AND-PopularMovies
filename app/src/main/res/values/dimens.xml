@@ -21,6 +21,7 @@
     <dimen name="loading_indicator_size">42dp</dimen>
     <dimen name="default_padding">16dp</dimen>
     <dimen name="card_view_default">2dp</dimen>
+    <dimen name="poster_details_height">200dp</dimen>
     <dimen name="card_view_height">277dp</dimen>
     <dimen name="card_view_width">185dp</dimen>
 </resources>

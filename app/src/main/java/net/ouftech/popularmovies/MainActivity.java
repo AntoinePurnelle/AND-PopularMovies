@@ -24,7 +24,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,6 +31,8 @@ import android.widget.TextView;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 
+import net.ouftech.popularmovies.Model.Movie;
+import net.ouftech.popularmovies.Model.Result;
 import net.ouftech.popularmovies.commons.BaseActivity;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
@@ -61,8 +62,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected TextView errorMessageDisplay;
     @BindView(R.id.fragment_container)
     protected View gridContainer;
-    @BindView(R.id.toolbar)
-    protected Toolbar toolbar;
 
     private static final String KEY_CURRENT_POSITION = "currentPosition";
     private static final String KEY_MOVIES = "movies";
@@ -78,8 +77,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         FragmentManager fragmentManager = getSupportFragmentManager();
-
-        setToolbarTitle(getString(R.string.app_name));
 
         if (savedInstanceState != null) {
             setCurrentPosition(savedInstanceState.getInt(KEY_CURRENT_POSITION, 0));
@@ -202,9 +199,5 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     public void setCurrentPosition(int currentPosition) {
         MainActivity.currentPosition = currentPosition;
-    }
-
-    public void setToolbarTitle(String title) {
-        toolbar.setTitle(title);
     }
 }

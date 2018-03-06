@@ -60,6 +60,10 @@ public class NetworkUtils {
     private static final String LANGUAGE_PARAM = "language";
     private static final String IMAGE_LANGUAGE_PARAM = "include_image_language";
 
+    public static URL getMovieURL(@NonNull Context context, @NonNull String id) {
+        return buildMoviesUrl(context, TMDB_BASE_URL + "/" + id);
+    }
+
     public static URL getPopularMoviesURL(@NonNull Context context) {
         return buildMoviesUrl(context, TMDB_POPULAR_URL);
     }

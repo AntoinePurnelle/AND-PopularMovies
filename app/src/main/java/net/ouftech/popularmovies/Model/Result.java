@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package net.ouftech.popularmovies;
+package net.ouftech.popularmovies.Model;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by antoine.purnelle@ouftech.net on 27-02-18.

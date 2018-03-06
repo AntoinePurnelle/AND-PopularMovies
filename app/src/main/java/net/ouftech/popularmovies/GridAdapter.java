@@ -35,6 +35,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import net.ouftech.popularmovies.GridAdapter.ImageViewHolder;
+import net.ouftech.popularmovies.Model.Movie;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
@@ -181,7 +182,7 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
         void setImage(final int adapterPosition, Movie movie) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
-            String imageURL = NetworkUtils.getW185ImageURL(movie.poster).toString();
+            String imageURL = NetworkUtils.getW185ImageURL(movie.posterPath).toString();
             requestManager
                     .load(imageURL)
                     .listener(new RequestListener<Drawable>() {
