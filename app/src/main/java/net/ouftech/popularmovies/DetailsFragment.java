@@ -44,16 +44,18 @@ import com.hannesdorfmann.fragmentargs.annotation.Arg;
 import com.hannesdorfmann.fragmentargs.annotation.FragmentWithArgs;
 
 import net.ouftech.popularmovies.Model.Movie;
-import net.ouftech.popularmovies.Model.Result;
 import net.ouftech.popularmovies.commons.BaseFragment;
+import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -79,14 +81,34 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     AppCompatImageView icStar5Iv;
     @BindView(R.id.rating_tv)
     TextView ratingTv;
-    @BindView(R.id.date_tv)
-    TextView dateTv;
     @BindView(R.id.overview_tv)
     TextView overviewTv;
+    @BindView(R.id.tagline_tv)
+    TextView taglineTv;
     @BindView(R.id.detail_toolbar)
     Toolbar detailToolbar;
     @BindView(R.id.backdrop_iv)
     ImageView backdropIv;
+    @BindView(R.id.original_title_label_tv)
+    TextView originalTitleLabelTv;
+    @BindView(R.id.original_title_tv)
+    TextView originalTitleTv;
+    @BindView(R.id.original_language_label_tv)
+    TextView originalLanguageLabelTv;
+    @BindView(R.id.original_language_tv)
+    TextView originalLanguageTv;
+    @BindView(R.id.date_label_tv)
+    TextView dateLabelTv;
+    @BindView(R.id.date_tv)
+    TextView dateTv;
+    @BindView(R.id.countries_label_tv)
+    TextView countriesLabelTv;
+    @BindView(R.id.countries_tv)
+    TextView countriesTv;
+    @BindView(R.id.genres_label_tv)
+    TextView genresLabelTv;
+    @BindView(R.id.genres_tv)
+    TextView genresTv;
 
     Unbinder unbinder;
 
@@ -123,6 +145,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
             imageView.setTransitionName(movie.id);
 
         loadMovie();
+        displayData();
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(this)
@@ -153,7 +176,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                 .into(imageView);
 
         Glide.with(this)
-                .load(NetworkUtils.getW342ImageURL(movie.backdropPath))
+                .load(NetworkUtils.getW500ImageURL(movie.backdropPath))
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
@@ -180,31 +203,59 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                 .into(backdropIv);
         unbinder = ButterKnife.bind(this, view);
 
-        detailToolbar.setTitle(movie.title);
-        ratingTv.setText(String.valueOf(movie.voteAverage));
-        dateTv.setText(getLocaleDate(movie.releaseDate));
-        overviewTv.setText(movie.overview);
-        displayRatingStars(movie.voteAverage);
-
         return view;
     }
 
     private void loadMovie() {
-        if (movie.isFullyLoaded) {
-            displayAdditionalData();
-        } else {
+        if (!movie.isFullyLoaded) {
             LoaderManager loaderManager = getActivity().getSupportLoaderManager();
             Loader<String[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER);
             if (moviesLoader == null) {
-                loaderManager.initLoader(MOVIE_LOADER, null, this);
+                loaderManager.initLoader(Integer.valueOf(movie.id), null, this);
             } else {
                 loaderManager.restartLoader(MOVIE_LOADER, null, this);
             }
         }
     }
 
-    private void displayAdditionalData() {
+    private void displayData() {
+        if (detailToolbar != null)
+            detailToolbar.setTitle(movie.title);
+        if (ratingTv != null)
+            ratingTv.setText(String.valueOf(movie.voteAverage));
+        if (overviewTv != null)
+            overviewTv.setText(movie.overview);
+        displayRatingStars(movie.voteAverage);
 
+        displayValue(null, taglineTv, movie.tagline);
+        displayValue(dateLabelTv, dateTv, getLocaleDate(movie.releaseDate));
+        displayValue(originalLanguageLabelTv, originalLanguageTv, movie.getDisplayLanguage());
+        if (!Locale.getDefault().getLanguage().equals(movie.originalLanguage))
+            displayValue(originalTitleLabelTv, originalTitleTv, movie.getOriginalTitleIfDifferent());
+        else
+            displayValue(originalTitleLabelTv, originalTitleTv, null);
+        displayValue(countriesLabelTv, countriesTv, movie.getCountriesString());
+        if (!CollectionUtils.isEmpty(movie.countries) && genresLabelTv != null)
+            countriesLabelTv.setText(getResources().getQuantityText(R.plurals.countries, movie.countries.size()));
+        displayValue(genresLabelTv, genresTv, movie.getGenresString());
+        if (!CollectionUtils.isEmpty(movie.genres) && genresLabelTv != null)
+            genresLabelTv.setText(getResources().getQuantityText(R.plurals.genres, movie.genres.size()));
+    }
+
+    private void displayValue(@Nullable TextView labelTv, @Nullable TextView valueTv, @Nullable String value) {
+        if (!TextUtils.isEmpty(value)) {
+            if (labelTv != null)
+                labelTv.setVisibility(View.VISIBLE);
+            if (valueTv != null) {
+                valueTv.setVisibility(View.VISIBLE);
+                valueTv.setText(value);
+            }
+        } else {
+            if (labelTv != null)
+                labelTv.setVisibility(View.GONE);
+            if (valueTv != null)
+                valueTv.setVisibility(View.GONE);
+        }
     }
 
     private String getLocaleDate(@Nullable String dateString) {
@@ -215,7 +266,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
 
         try {
             Date date = sdf.parse(dateString);
-            java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getContext());
+            DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getContext());
             return dateFormat.format(date);
         } catch (ParseException e) {
             loge(String.format("Error while parsing date %s", dateString), e);
@@ -283,6 +334,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                 }
 
                 logd("finished");
+                deliverResult(tempMovie);
                 return tempMovie;
             }
 
@@ -303,7 +355,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
             movie.countries = data.countries;
             movie.tagline = data.tagline;
             movie.isFullyLoaded = true;
-            displayAdditionalData();
+            displayData();
         }
     }
 

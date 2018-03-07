@@ -18,11 +18,18 @@ package net.ouftech.popularmovies.Model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.ouftech.popularmovies.commons.CollectionUtils;
+
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by antoine.purnelle@ouftech.net on 26-02-18.
@@ -88,6 +95,50 @@ public class Movie implements Parcelable {
 
     @SerializedName(GENRES_KEY)
     public ArrayList<Genre> genres;
+
+    @Nullable
+    public String getCountriesString() {
+        if (CollectionUtils.isEmpty(countries))
+            return null;
+
+        ArrayList<String> countriesStrings = new ArrayList<>(countries.size());
+        for (Country country : countries) {
+            countriesStrings.add(country.name);
+        }
+
+        return TextUtils.join(", ", countriesStrings);
+    }
+
+    @Nullable
+    public String getGenresString() {
+        if (CollectionUtils.isEmpty(genres))
+            return null;
+
+        ArrayList<String> genresStrings = new ArrayList<>(genres.size());
+        for (Genre genre : genres) {
+            genresStrings.add(genre.name);
+        }
+
+        return TextUtils.join(", ", genresStrings);
+    }
+
+    @Nullable
+    public String getDisplayLanguage() {
+        if (TextUtils.isEmpty(originalLanguage))
+            return null;
+
+        String lng = "en";
+        Locale loc = new Locale(lng);
+        return loc.getDisplayLanguage(loc);
+    }
+
+    @Nullable
+    public String getOriginalTitleIfDifferent() {
+        if (TextUtils.isEmpty(originalTitle) || originalTitle.equals(title))
+            return null;
+
+        return originalTitle;
+    }
 
     protected Movie(Parcel in) {
         isFullyLoaded = in.readByte() != 0x00;

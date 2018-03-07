@@ -10,4 +10,19 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="DefaultText" parent="@android:style/TextAppearance.Widget.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/default_text_size</item>
+        <item name="android:layout_marginLeft">@dimen/default_padding</item>
+        <item name="android:layout_marginRight">@dimen/default_padding</item>
+        <item name="android:textColor">@color/primary_text_color</item>
+    </style>
+
+    <style name="LabelText" parent="DefaultText">
+        <item name="android:layout_marginTop">@dimen/small_padding</item>
+        <item name="android:textColor">@color/hint_text_color</item>
+        <item name="android:textSize">@dimen/small_text_size</item>
+    </style>
+
 </resources>

@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="error_message">An error has occurred</string>
+    <string name="original_title">Original title</string>
+    <string name="original_language">Original language</string>
+    <string name="release_date">Release date</string>
+    <string name="runtime">Runtime</string>
+    <plurals name="countries">
+        <item quantity="one">Country</item>
+        <item quantity="other">Countries</item>
+    </plurals>
+    <plurals name="genres">
+        <item quantity="one">Genre</item>
+        <item quantity="other">Genres</item>
+    </plurals>
     <!--<string name="movie_db_api_key">[YOUR API KEY]</string>-->
 </resources>

@@ -55,6 +55,8 @@ public class NetworkUtils {
             TMDB_IMAGE_BASE_URL + "/w185";
     private static final String TMDB_IMAGE_W342_URL =
             TMDB_IMAGE_BASE_URL + "/w342";
+    private static final String TMDB_IMAGE_W500_URL =
+            TMDB_IMAGE_BASE_URL + "/w500";
 
     private static final String API_KEY_PARAM = "api_key";
     private static final String LANGUAGE_PARAM = "language";
@@ -105,6 +107,10 @@ public class NetworkUtils {
 
     public static URL getW342ImageURL(String imagePath) {
         return buildImageUrl(TMDB_IMAGE_W342_URL, imagePath);
+    }
+
+    public static URL getW500ImageURL(String imagePath) {
+        return buildImageUrl(TMDB_IMAGE_W500_URL, imagePath);
     }
 
     private static URL buildImageUrl(String baseURL, String imagePath) {
