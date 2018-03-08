@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 
 import net.ouftech.popularmovies.Model.Movie;
@@ -70,13 +71,25 @@ public class GridFragment extends BaseFragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         scrollToPosition();
-        recyclerView.setPadding(0,0,0, ((MainActivity) getActivity()).getBottomNavigationViewHeight());
+
+        ViewTreeObserver vto = view.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener (new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                recyclerView.setPadding(0,0,0, ((MainActivity) getActivity()).getBottomNavigationViewHeight());
+
+            }
+        });
     }
 
     public void swapData(ArrayList<Movie> movies) {
+        if (movies == null)
+            return;
+
         this.movies = movies;
         if (recyclerView != null && recyclerView.getAdapter() != null)
             recyclerView.getAdapter().notifyDataSetChanged();

@@ -21,12 +21,15 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -46,7 +49,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Pair<ArrayList<Movie>, ArrayList<Movie>>> {
 
     @NonNull
     @Override
@@ -70,14 +73,20 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private static final String KEY_CURRENT_POSITION = "currentPosition";
     private static final String KEY_SHOWING_DETAILS = "isShowingDetails";
-    private static final String KEY_MOVIES = "movies";
+    private static final String KEY_POPULAR_MOVIES = "popularMovies";
+    private static final String KEY_TOP_RATED_MOVIES = "topRatedMovies";
+    private static final String KEY_SORT_CRITERIA = "sortCriteria";
     private static final int MOVIES_LOADER = 42;
+    private static final int SORT_POPULAR = 0;
+    private static final int SORT_TOP_RATED = 1;
 
     public static int currentPosition;
     private GridFragment gridFragment;
     private boolean isShowingDetails = false;
+    private int sortCriteria = 0;
 
-    protected ArrayList<Movie> movies;
+    protected ArrayList<Movie> popularMovies;
+    protected ArrayList<Movie> topRatedMovies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,12 +94,35 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         Fabric.with(this, new Crashlytics());
         FragmentManager fragmentManager = getSupportFragmentManager();
 
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.navigation_popular:
+                        gridFragment.swapData(popularMovies);
+                        sortCriteria = SORT_POPULAR;
+                        swapData();
+                        return true;
+                    case R.id.navigation_top_rated:
+                        gridFragment.swapData(topRatedMovies);
+                        sortCriteria = SORT_TOP_RATED;
+                        swapData();
+                        return true;
+                }
+                return false;
+            }
+        });
+
         if (savedInstanceState != null) {
             setCurrentPosition(savedInstanceState.getInt(KEY_CURRENT_POSITION, 0));
             isShowingDetails = savedInstanceState.getBoolean(KEY_SHOWING_DETAILS);
-            movies = savedInstanceState.getParcelableArrayList(KEY_MOVIES);
+            popularMovies = savedInstanceState.getParcelableArrayList(KEY_POPULAR_MOVIES);
+            topRatedMovies = savedInstanceState.getParcelableArrayList(KEY_TOP_RATED_MOVIES);
+            sortCriteria = savedInstanceState.getInt(KEY_SORT_CRITERIA, SORT_POPULAR);
             gridFragment = (GridFragment) fragmentManager.findFragmentByTag(GridFragment.class.getSimpleName());
-            gridFragment.swapData(movies);
+            if (sortCriteria == SORT_TOP_RATED)
+                bottomNavigationView.setSelectedItemId(R.id.navigation_top_rated);
+            swapData();
 
             if (isShowingDetails)
                 bottomNavigationView.setVisibility(View.GONE);
@@ -108,6 +140,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 .commit();
     }
 
+    private void swapData() {
+        if (sortCriteria == SORT_POPULAR)
+            gridFragment.swapData(popularMovies);
+        else
+            gridFragment.swapData(topRatedMovies);
+    }
+
     private void loadMovies() {
 
         LoaderManager loaderManager = getSupportLoaderManager();
@@ -122,10 +161,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @SuppressLint("StaticFieldLeak")
     @Override
-    public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<ArrayList<Movie>>(getApplicationContext()) {
+    public Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<Pair<ArrayList<Movie>, ArrayList<Movie>>>(getApplicationContext()) {
 
-            ArrayList<Movie> result;
+            Pair<ArrayList<Movie>, ArrayList<Movie>> result;
 
             @Override
             protected void onStartLoading() {
@@ -138,7 +177,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             }
 
             @Override
-            public ArrayList<Movie> loadInBackground() {
+            public Pair<ArrayList<Movie>, ArrayList<Movie>> loadInBackground() {
 
                 if (loadingIndicator != null)
                     loadingIndicator.setVisibility(View.VISIBLE);
@@ -164,11 +203,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 }
 
                 logd("finished");
-                return popularMovies;
+                return new Pair<>(popularMovies, topRatedMovies);
             }
 
             @Override
-            public void deliverResult(ArrayList<Movie> data) {
+            public void deliverResult(Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
                 result = data;
                 super.deliverResult(data);
             }
@@ -176,20 +215,21 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> data) {
+    public void onLoadFinished(Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader, Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
         if (loadingIndicator != null)
             loadingIndicator.setVisibility(View.INVISIBLE);
 
         if (data != null) {
-            movies = data;
-            gridFragment.swapData(data);
+            popularMovies = data.first;
+            topRatedMovies = data.second;
+            gridFragment.swapData(popularMovies);
         } else {
             showErrorMessage();
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<ArrayList<Movie>> loader) {
+    public void onLoaderReset(Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader) {
 
     }
 
@@ -202,12 +242,17 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_POSITION, currentPosition);
+        outState.putInt(KEY_SORT_CRITERIA, sortCriteria);
         outState.putBoolean(KEY_SHOWING_DETAILS, isShowingDetails);
-        outState.putParcelableArrayList(KEY_MOVIES, movies);
+        outState.putParcelableArrayList(KEY_POPULAR_MOVIES, popularMovies);
+        outState.putParcelableArrayList(KEY_TOP_RATED_MOVIES, topRatedMovies);
     }
 
     public ArrayList<Movie> getMovies() {
-        return movies;
+        if (sortCriteria == SORT_POPULAR)
+            return popularMovies;
+        else
+            return topRatedMovies;
     }
 
     public void onItemClicked(int currentPosition) {
