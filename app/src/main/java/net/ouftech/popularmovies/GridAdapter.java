@@ -39,6 +39,7 @@ import net.ouftech.popularmovies.Model.Movie;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
@@ -182,25 +183,31 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
         void setImage(final int adapterPosition, Movie movie) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
-            String imageURL = NetworkUtils.getW185ImageURL(movie.posterPath).toString();
-            requestManager
-                    .load(imageURL)
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                                    Target<Drawable> target, boolean isFirstResource) {
-                            viewHolderListener.onLoadCompleted(image, adapterPosition);
-                            return false;
-                        }
+            URL url = NetworkUtils.getW185ImageURL(movie.posterPath);
+            if (url != null) {
+                String imageURL = url.toString();
+                requestManager
+                        .load(imageURL)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                        Target<Drawable> target, boolean isFirstResource) {
+                                viewHolderListener.onLoadCompleted(image, adapterPosition);
+                                return false;
+                            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                target, DataSource dataSource, boolean isFirstResource) {
-                            viewHolderListener.onLoadCompleted(image, adapterPosition);
-                            return false;
-                        }
-                    })
-                    .into(image);
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                    target, DataSource dataSource, boolean isFirstResource) {
+                                viewHolderListener.onLoadCompleted(image, adapterPosition);
+                                return false;
+                            }
+                        })
+                        .into(image);
+            } else {
+                image.setImageResource(R.drawable.ic_movie_24dp);
+                viewHolderListener.onLoadCompleted(image, adapterPosition);
+            }
         }
 
         @OnClick(R.id.card_view)

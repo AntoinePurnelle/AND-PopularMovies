@@ -137,6 +137,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
 
         if (view == null)
             return null;
+        unbinder = ButterKnife.bind(this, view);
 
         if (getActivity() instanceof MainActivity && ((MainActivity) getActivity()).getMovies() != null)
             movie = ((MainActivity) getActivity()).getMovies().get(position);
@@ -148,66 +149,79 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
         displayData();
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
-        Glide.with(this)
-                .load(NetworkUtils.getW185ImageURL(movie.posterPath))
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                            target, boolean isFirstResource) {
-                        // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
-                        // startPostponedEnterTransition() should also be called on it to get the transition
-                        // going in case of a failure.
-                        if (getParentFragment() != null)
-                            getParentFragment().startPostponedEnterTransition();
-                        return false;
-                    }
+        URL url = NetworkUtils.getW185ImageURL(movie.posterPath);
+        if (url != null) {
+            Glide.with(this)
+                    .load(url)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                target, boolean isFirstResource) {
+                            // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
+                            // startPostponedEnterTransition() should also be called on it to get the transition
+                            // going in case of a failure.
+                            if (getParentFragment() != null)
+                                getParentFragment().startPostponedEnterTransition();
+                            return false;
+                        }
 
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                            target, DataSource dataSource, boolean isFirstResource) {
-                        // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
-                        // startPostponedEnterTransition() should also be called on it to get the transition
-                        // going when the image is ready.
-                        if (getParentFragment() != null)
-                            getParentFragment().startPostponedEnterTransition();
-                        return false;
-                    }
-                })
-                .into(imageView);
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                target, DataSource dataSource, boolean isFirstResource) {
+                            // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
+                            // startPostponedEnterTransition() should also be called on it to get the transition
+                            // going when the image is ready.
+                            if (getParentFragment() != null)
+                                getParentFragment().startPostponedEnterTransition();
+                            return false;
+                        }
+                    })
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.ic_movie_24dp);
+            if (getParentFragment() != null)
+                getParentFragment().startPostponedEnterTransition();
+        }
 
-        Glide.with(this)
-                .load(NetworkUtils.getW500ImageURL(movie.backdropPath))
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                            target, boolean isFirstResource) {
-                        // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
-                        // startPostponedEnterTransition() should also be called on it to get the transition
-                        // going in case of a failure.
-                        if (getParentFragment() != null)
-                            getParentFragment().startPostponedEnterTransition();
-                        return false;
-                    }
+        url = NetworkUtils.getW500ImageURL(movie.backdropPath);
+        if (url != null) {
+            Glide.with(this)
+                    .load(url)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                target, boolean isFirstResource) {
+                            // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
+                            // startPostponedEnterTransition() should also be called on it to get the transition
+                            // going in case of a failure.
+                            if (getParentFragment() != null)
+                                getParentFragment().startPostponedEnterTransition();
+                            return false;
+                        }
 
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                            target, DataSource dataSource, boolean isFirstResource) {
-                        // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
-                        // startPostponedEnterTransition() should also be called on it to get the transition
-                        // going when the image is ready.
-                        if (getParentFragment() != null)
-                            getParentFragment().startPostponedEnterTransition();
-                        return false;
-                    }
-                })
-                .into(backdropIv);
-        unbinder = ButterKnife.bind(this, view);
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                target, DataSource dataSource, boolean isFirstResource) {
+                            // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
+                            // startPostponedEnterTransition() should also be called on it to get the transition
+                            // going when the image is ready.
+                            if (getParentFragment() != null)
+                                getParentFragment().startPostponedEnterTransition();
+                            return false;
+                        }
+                    })
+                    .into(backdropIv);
+        }  else {
+            backdropIv.setImageResource(R.drawable.ic_movie_24dp);
+            if (getParentFragment() != null)
+                getParentFragment().startPostponedEnterTransition();
+        }
 
         return view;
     }
 
     private void loadMovie() {
-        if (!movie.isFullyLoaded) {
+        if (!movie.isFullyLoaded && getActivity() != null) {
             LoaderManager loaderManager = getActivity().getSupportLoaderManager();
             Loader<String[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER);
             if (moviesLoader == null) {

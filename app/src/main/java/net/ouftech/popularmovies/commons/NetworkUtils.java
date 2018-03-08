@@ -19,6 +19,7 @@ package net.ouftech.popularmovies.commons;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import net.ouftech.popularmovies.R;
@@ -101,18 +102,22 @@ public class NetworkUtils {
         return url;
     }
 
+    @Nullable
     public static URL getW185ImageURL(String imagePath) {
         return buildImageUrl(TMDB_IMAGE_W185_URL, imagePath);
     }
 
+    @Nullable
     public static URL getW342ImageURL(String imagePath) {
         return buildImageUrl(TMDB_IMAGE_W342_URL, imagePath);
     }
 
+    @Nullable
     public static URL getW500ImageURL(String imagePath) {
         return buildImageUrl(TMDB_IMAGE_W500_URL, imagePath);
     }
 
+    @Nullable
     private static URL buildImageUrl(String baseURL, String imagePath) {
         if (TextUtils.isEmpty(baseURL) || TextUtils.isEmpty(imagePath)) {
             Logger.e(getLotTag(), "Cannot build URL", new NullPointerException(String.format("Base URL [%s] or Image Path [%s] is null or empty", baseURL, imagePath)));
