@@ -120,7 +120,7 @@ public class NetworkUtils {
     @Nullable
     private static URL buildImageUrl(String baseURL, String imagePath) {
         if (TextUtils.isEmpty(baseURL) || TextUtils.isEmpty(imagePath)) {
-            Logger.e(getLotTag(), "Cannot build URL", new NullPointerException(String.format("Base URL [%s] or Image Path [%s] is null or empty", baseURL, imagePath)));
+            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException(String.format("Base URL [%s] or Image Path [%s] is null or empty", baseURL, imagePath)), false);
             return null;
         }
 

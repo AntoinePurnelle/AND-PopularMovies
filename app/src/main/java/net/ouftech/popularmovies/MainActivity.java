@@ -17,9 +17,12 @@
 
 package net.ouftech.popularmovies;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -62,13 +65,17 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected TextView errorMessageDisplay;
     @BindView(R.id.fragment_container)
     protected View gridContainer;
+    @BindView(R.id.navigation)
+    protected BottomNavigationView bottomNavigationView;
 
     private static final String KEY_CURRENT_POSITION = "currentPosition";
+    private static final String KEY_SHOWING_DETAILS = "isShowingDetails";
     private static final String KEY_MOVIES = "movies";
     private static final int MOVIES_LOADER = 42;
 
     public static int currentPosition;
     private GridFragment gridFragment;
+    private boolean isShowingDetails = false;
 
     protected ArrayList<Movie> movies;
 
@@ -80,9 +87,14 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         if (savedInstanceState != null) {
             setCurrentPosition(savedInstanceState.getInt(KEY_CURRENT_POSITION, 0));
+            isShowingDetails = savedInstanceState.getBoolean(KEY_SHOWING_DETAILS);
             movies = savedInstanceState.getParcelableArrayList(KEY_MOVIES);
             gridFragment = (GridFragment) fragmentManager.findFragmentByTag(GridFragment.class.getSimpleName());
             gridFragment.swapData(movies);
+
+            if (isShowingDetails)
+                bottomNavigationView.setVisibility(View.GONE);
+
             // Return here to prevent adding additional GridFragments when changing orientation.
             return;
         }
@@ -190,6 +202,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_POSITION, currentPosition);
+        outState.putBoolean(KEY_SHOWING_DETAILS, isShowingDetails);
         outState.putParcelableArrayList(KEY_MOVIES, movies);
     }
 
@@ -197,7 +210,49 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         return movies;
     }
 
+    public void onItemClicked(int currentPosition) {
+        isShowingDetails = true;
+        setCurrentPosition(currentPosition);
+        if (bottomNavigationView != null) {
+            bottomNavigationView.animate()
+                    .alpha(0.0f)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            bottomNavigationView.setVisibility(View.GONE);
+                        }
+                    });
+        }
+    }
+
     public void setCurrentPosition(int currentPosition) {
         MainActivity.currentPosition = currentPosition;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (isShowingDetails) {
+            isShowingDetails = false;
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+                bottomNavigationView.animate()
+                        .alpha(1.0f)
+                        .setDuration(300)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                bottomNavigationView.setVisibility(View.VISIBLE);
+                            }
+                        });
+            }
+        }
+    }
+
+    public int getBottomNavigationViewHeight() {
+        return bottomNavigationView == null ? 0 : bottomNavigationView.getMeasuredHeight();
     }
 }

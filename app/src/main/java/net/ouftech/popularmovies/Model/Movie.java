@@ -127,8 +127,7 @@ public class Movie implements Parcelable {
         if (TextUtils.isEmpty(originalLanguage))
             return null;
 
-        String lng = "en";
-        Locale loc = new Locale(lng);
+        Locale loc = new Locale(originalLanguage);
         return loc.getDisplayLanguage(loc);
     }
 

@@ -289,6 +289,9 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     }
 
     private void displayRatingStars(float ratingFloat) {
+        if (icStar1Iv == null)
+            return;
+
         int rating = Math.round(ratingFloat);
 
         initStar(icStar1Iv, rating, 1, 2);

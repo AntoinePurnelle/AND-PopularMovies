@@ -129,7 +129,7 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
         public void onItemClicked(View view, int position) {
             // Update the position.
             if (fragment.getActivity() != null && fragment.getActivity() instanceof MainActivity)
-                ((MainActivity) fragment.getActivity()).setCurrentPosition(position);
+                ((MainActivity) fragment.getActivity()).onItemClicked(position);
 
             // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).

@@ -73,6 +73,7 @@ public class GridFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         scrollToPosition();
+        recyclerView.setPadding(0,0,0, ((MainActivity) getActivity()).getBottomNavigationViewHeight());
     }
 
     public void swapData(ArrayList<Movie> movies) {
