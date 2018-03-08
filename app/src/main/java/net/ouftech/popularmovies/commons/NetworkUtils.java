@@ -63,19 +63,28 @@ public class NetworkUtils {
     private static final String LANGUAGE_PARAM = "language";
     private static final String IMAGE_LANGUAGE_PARAM = "include_image_language";
 
-    public static URL getMovieURL(@NonNull Context context, @NonNull String id) {
+    @Nullable
+    public static URL getMovieURL(@Nullable Context context, @NonNull String id) {
         return buildMoviesUrl(context, TMDB_BASE_URL + "/" + id);
     }
 
-    public static URL getPopularMoviesURL(@NonNull Context context) {
+    @Nullable
+    public static URL getPopularMoviesURL(@Nullable Context context) {
         return buildMoviesUrl(context, TMDB_POPULAR_URL);
     }
 
-    public static URL getTopRatedMoviesURL(@NonNull Context context) {
+    @Nullable
+    public static URL getTopRatedMoviesURL(@Nullable Context context) {
         return buildMoviesUrl(context, TMDB_TOP_RATED_URL);
     }
 
-    private static URL buildMoviesUrl(@NonNull Context context, String baseURL) {
+    @Nullable
+    private static URL buildMoviesUrl(@Nullable Context context, String baseURL) {
+        if (context == null) {
+            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException("Context is null"), false);
+            return null;
+        }
+
         if (TextUtils.isEmpty(baseURL)) {
             Logger.e(getLotTag(), "Cannot build URL", new NullPointerException("Base URL is empty"));
             return null;
@@ -134,7 +143,10 @@ public class NetworkUtils {
         return url;
     }
 
-    public static String getResponseFromHttpUrl(URL url) throws IOException {
+    public static String getResponseFromHttpUrl(@Nullable URL url) throws IOException {
+        if (url == null)
+            return null;
+
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             InputStream in = urlConnection.getInputStream();

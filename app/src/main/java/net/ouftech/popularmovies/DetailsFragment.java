@@ -211,7 +211,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                         }
                     })
                     .into(backdropIv);
-        }  else {
+        } else {
             backdropIv.setImageResource(R.drawable.ic_movie_24dp);
             if (getParentFragment() != null)
                 getParentFragment().startPostponedEnterTransition();
@@ -345,7 +345,8 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                 try {
                     URL popularMoviesURL = NetworkUtils.getMovieURL(getActivity(), movie.id);
                     String movieResponse = NetworkUtils.getResponseFromHttpUrl(popularMoviesURL);
-                    tempMovie = new Gson().fromJson(movieResponse, Movie.class);
+                    if (movieResponse != null)
+                        tempMovie = new Gson().fromJson(movieResponse, Movie.class);
                 } catch (IOException e) {
                     loge("Error while requesting movie", e);
                 }

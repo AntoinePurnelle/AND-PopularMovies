@@ -29,6 +29,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.util.Pair;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -187,8 +188,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 try {
                     URL popularMoviesURL = NetworkUtils.getPopularMoviesURL(MainActivity.this);
                     String popularMoviesResponse = NetworkUtils.getResponseFromHttpUrl(popularMoviesURL);
-                    popularMovies = new Gson().fromJson(popularMoviesResponse, Result.class).movies;
-                    logd("popularMovies " + popularMovies.size());
+                    if (!TextUtils.isEmpty(popularMoviesResponse)) {
+                        popularMovies = new Gson().fromJson(popularMoviesResponse, Result.class).movies;
+                        logd("popularMovies " + popularMovies.size());
+                    }
                 } catch (IOException e) {
                     loge("Error while requesting movies", e);
                 }
@@ -196,8 +199,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 try {
                     URL topRatedMoviesURL = NetworkUtils.getTopRatedMoviesURL(MainActivity.this);
                     String topRatedMoviesResponse = NetworkUtils.getResponseFromHttpUrl(topRatedMoviesURL);
-                    topRatedMovies = new Gson().fromJson(topRatedMoviesResponse, Result.class).movies;
-                    logd("topRatedMovies " + topRatedMovies.size());
+                    if (!TextUtils.isEmpty(topRatedMoviesResponse)) {
+                        topRatedMovies = new Gson().fromJson(topRatedMoviesResponse, Result.class).movies;
+                        logd("topRatedMovies " + topRatedMovies.size());
+                    }
                 } catch (IOException e) {
                     loge("Error while requesting movies", e);
                 }
