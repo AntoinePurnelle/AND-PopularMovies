@@ -61,7 +61,7 @@ public class ImagePagerFragment extends BaseFragment {
         viewPager.setAdapter(new ImagePagerAdapter(this));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(MainActivity.currentPosition);
+        viewPager.setCurrentItem(MainActivity.getCurrentPosition());
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -101,7 +101,7 @@ public class ImagePagerFragment extends BaseFragment {
                             return;
 
                         Fragment currentFragment = (Fragment) viewPager.getAdapter()
-                                .instantiateItem(viewPager, MainActivity.currentPosition);
+                                .instantiateItem(viewPager, MainActivity.getCurrentPosition());
                         View view = currentFragment.getView();
                         if (view == null) {
                             return;

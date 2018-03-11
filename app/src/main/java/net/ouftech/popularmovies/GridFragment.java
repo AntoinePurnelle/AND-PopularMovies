@@ -91,8 +91,10 @@ public class GridFragment extends BaseFragment {
             return;
 
         this.movies = movies;
-        if (recyclerView != null && recyclerView.getAdapter() != null)
+        if (recyclerView != null && recyclerView.getAdapter() != null) {
             recyclerView.getAdapter().notifyDataSetChanged();
+            recyclerView.scrollToPosition(MainActivity.getCurrentPosition());
+        }
     }
 
     /**
@@ -113,7 +115,7 @@ public class GridFragment extends BaseFragment {
                                        int oldBottom) {
                 recyclerView.removeOnLayoutChangeListener(this);
                 final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                View viewAtPosition = layoutManager.findViewByPosition(MainActivity.currentPosition);
+                View viewAtPosition = layoutManager.findViewByPosition(MainActivity.getCurrentPosition());
                 // Scroll to position if the view for the current position is null (not currently part of
                 // layout manager children), or it's not completely visible.
                 if (viewAtPosition == null || layoutManager
@@ -121,7 +123,7 @@ public class GridFragment extends BaseFragment {
                     recyclerView.post(new Runnable() {
                         @Override
                         public void run() {
-                            layoutManager.scrollToPosition(MainActivity.currentPosition);
+                            layoutManager.scrollToPosition(MainActivity.getCurrentPosition());
                         }
                     });
                 }
@@ -144,7 +146,7 @@ public class GridFragment extends BaseFragment {
                     public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
                         // Locate the ViewHolder for the clicked position.
                         RecyclerView.ViewHolder selectedViewHolder = recyclerView
-                                .findViewHolderForAdapterPosition(MainActivity.currentPosition);
+                                .findViewHolderForAdapterPosition(MainActivity.getCurrentPosition());
                         if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
                             return;
                         }

@@ -72,7 +72,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @BindView(R.id.navigation)
     protected BottomNavigationView bottomNavigationView;
 
-    private static final String KEY_CURRENT_POSITION = "currentPosition";
+    private static final String KEY_CURRENT_POPULAR_POSITION = "currentPopularPosition";
+    private static final String KEY_CURRENT_TOP_RATED_POSITION = "currentTopRatedPosition";
     private static final String KEY_SHOWING_DETAILS = "isShowingDetails";
     private static final String KEY_POPULAR_MOVIES = "popularMovies";
     private static final String KEY_TOP_RATED_MOVIES = "topRatedMovies";
@@ -81,10 +82,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private static final int SORT_POPULAR = 0;
     private static final int SORT_TOP_RATED = 1;
 
-    public static int currentPosition;
+    public static int currentPopularPosition = 0;
+    public static int currentTopRatedPosition = 0;
     private GridFragment gridFragment;
     private boolean isShowingDetails = false;
-    private int sortCriteria = 0;
+    private static int sortCriteria = 0;
 
     protected ArrayList<Movie> popularMovies;
     protected ArrayList<Movie> topRatedMovies;
@@ -115,7 +117,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         });
 
         if (savedInstanceState != null) {
-            setCurrentPosition(savedInstanceState.getInt(KEY_CURRENT_POSITION, 0));
+            currentPopularPosition = savedInstanceState.getInt(KEY_CURRENT_POPULAR_POSITION, 0);
+            currentTopRatedPosition = savedInstanceState.getInt(KEY_CURRENT_TOP_RATED_POSITION, 0);
             isShowingDetails = savedInstanceState.getBoolean(KEY_SHOWING_DETAILS);
             popularMovies = savedInstanceState.getParcelableArrayList(KEY_POPULAR_MOVIES);
             topRatedMovies = savedInstanceState.getParcelableArrayList(KEY_TOP_RATED_MOVIES);
@@ -246,7 +249,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_CURRENT_POSITION, currentPosition);
+        outState.putInt(KEY_CURRENT_POPULAR_POSITION, currentPopularPosition);
+        outState.putInt(KEY_CURRENT_TOP_RATED_POSITION, currentTopRatedPosition);
         outState.putInt(KEY_SORT_CRITERIA, sortCriteria);
         outState.putBoolean(KEY_SHOWING_DETAILS, isShowingDetails);
         outState.putParcelableArrayList(KEY_POPULAR_MOVIES, popularMovies);
@@ -277,8 +281,19 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
     }
 
+    public static int getCurrentPosition() {
+        if (sortCriteria == SORT_POPULAR)
+            return MainActivity.currentPopularPosition;
+        else if (sortCriteria == SORT_TOP_RATED)
+            return MainActivity.currentTopRatedPosition;
+        return 0;
+    }
+
     public void setCurrentPosition(int currentPosition) {
-        MainActivity.currentPosition = currentPosition;
+        if (sortCriteria == SORT_POPULAR)
+            MainActivity.currentPopularPosition = currentPosition;
+        else if (sortCriteria == SORT_TOP_RATED)
+            MainActivity.currentTopRatedPosition = currentPosition;
     }
 
     @Override

@@ -108,7 +108,7 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
         @Override
         public void onLoadCompleted(ImageView view, int position) {
             // Call startPostponedEnterTransition only when the 'selected' image loading is completed.
-            if (MainActivity.currentPosition != position) {
+            if (MainActivity.getCurrentPosition() != position) {
                 return;
             }
             if (enterTransitionStarted.getAndSet(true)) {
