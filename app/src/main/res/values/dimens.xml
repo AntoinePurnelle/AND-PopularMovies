@@ -24,7 +24,8 @@
     <dimen name="default_padding">16dp</dimen>
     <dimen name="small_padding">8dp</dimen>
     <dimen name="card_view_default">2dp</dimen>
-    <dimen name="poster_details_height">200dp</dimen>
     <dimen name="card_view_height">277dp</dimen>
     <dimen name="card_view_width">185dp</dimen>
+    <dimen name="toolbar_image_height">192dp</dimen>
+    <dimen name="details_image_weight">2</dimen>
 </resources>

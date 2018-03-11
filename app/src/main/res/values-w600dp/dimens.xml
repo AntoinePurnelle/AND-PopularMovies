@@ -16,5 +16,11 @@
   -->
 
 <resources>
-  <integer name="grid_span_count">4</integer>
+  <integer name="grid_span_count">2</integer>
+  <dimen name="default_padding">32dp</dimen>
+  <dimen name="small_padding">16dp</dimen>
+  <dimen name="default_text_size">20sp</dimen>
+  <dimen name="small_text_size">16sp</dimen>
+  <dimen name="card_view_height">374dp</dimen>
+  <dimen name="card_view_width">250dp</dimen>
 </resources>

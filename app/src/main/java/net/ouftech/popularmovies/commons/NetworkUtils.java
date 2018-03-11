@@ -51,13 +51,7 @@ public class NetworkUtils {
             TMDB_BASE_URL + "/top_rated";
 
     private static final String TMDB_IMAGE_BASE_URL =
-            "http://image.tmdb.org/t/p/";
-    private static final String TMDB_IMAGE_W185_URL =
-            TMDB_IMAGE_BASE_URL + "/w185";
-    private static final String TMDB_IMAGE_W342_URL =
-            TMDB_IMAGE_BASE_URL + "/w342";
-    private static final String TMDB_IMAGE_W500_URL =
-            TMDB_IMAGE_BASE_URL + "/w500";
+            "https://image.tmdb.org/t/p/";
 
     private static final String API_KEY_PARAM = "api_key";
     private static final String LANGUAGE_PARAM = "language";
@@ -112,18 +106,13 @@ public class NetworkUtils {
     }
 
     @Nullable
-    public static URL getW185ImageURL(String imagePath) {
-        return buildImageUrl(TMDB_IMAGE_W185_URL, imagePath);
+    public static URL getSmallImageURL(@NonNull Context context, String imagePath) {
+        return buildImageUrl(context.getString(R.string.small_image), imagePath);
     }
 
     @Nullable
-    public static URL getW342ImageURL(String imagePath) {
-        return buildImageUrl(TMDB_IMAGE_W342_URL, imagePath);
-    }
-
-    @Nullable
-    public static URL getW500ImageURL(String imagePath) {
-        return buildImageUrl(TMDB_IMAGE_W500_URL, imagePath);
+    public static URL getLargeImageURL(@NonNull Context context, String imagePath) {
+        return buildImageUrl(context.getString(R.string.large_image), imagePath);
     }
 
     @Nullable
@@ -135,7 +124,7 @@ public class NetworkUtils {
 
         URL url = null;
         try {
-            url = new URL(baseURL + imagePath);
+            url = new URL(TMDB_IMAGE_BASE_URL + baseURL + imagePath);
             Logger.d(getLotTag(), "Built URL " + url);
         } catch (MalformedURLException e) {
             Logger.e(getLotTag(), "Error while building URL", e);

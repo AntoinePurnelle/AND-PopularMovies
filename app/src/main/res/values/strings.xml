@@ -15,5 +15,7 @@
         <item quantity="one">Genre</item>
         <item quantity="other">Genres</item>
     </plurals>
+    <string name="small_image">/w185</string>
+    <string name="large_image">/w500</string>
     <!--<string name="movie_db_api_key">[YOUR API KEY]</string>-->
 </resources>

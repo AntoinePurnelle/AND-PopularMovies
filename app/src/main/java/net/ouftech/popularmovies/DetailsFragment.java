@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -55,7 +56,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -90,16 +90,10 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     Toolbar detailToolbar;
     @BindView(R.id.backdrop_iv)
     ImageView backdropIv;
-    @BindView(R.id.original_title_label_tv)
-    TextView originalTitleLabelTv;
     @BindView(R.id.original_title_tv)
     TextView originalTitleTv;
-    @BindView(R.id.original_language_label_tv)
-    TextView originalLanguageLabelTv;
     @BindView(R.id.original_language_tv)
     TextView originalLanguageTv;
-    @BindView(R.id.date_label_tv)
-    TextView dateLabelTv;
     @BindView(R.id.date_tv)
     TextView dateTv;
     @BindView(R.id.countries_label_tv)
@@ -112,6 +106,16 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     TextView genresTv;
     @BindView(R.id.detail_progressbar)
     ProgressBar progressBar;
+    @BindView(R.id.original_title_layout)
+    LinearLayout originalTitleLayout;
+    @BindView(R.id.original_language_layout)
+    LinearLayout originalLanguageLayout;
+    @BindView(R.id.date_layout)
+    LinearLayout dateLayout;
+    @BindView(R.id.countries_layout)
+    LinearLayout countriesLayout;
+    @BindView(R.id.genres_layout)
+    LinearLayout genresLayout;
 
     Unbinder unbinder;
 
@@ -152,7 +156,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
         displayData();
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
-        URL url = NetworkUtils.getW185ImageURL(movie.posterPath);
+        URL url = NetworkUtils.getSmallImageURL(getContext(), movie.posterPath);
         if (url != null) {
             Glide.with(this)
                     .load(url)
@@ -186,7 +190,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
                 getParentFragment().startPostponedEnterTransition();
         }
 
-        url = NetworkUtils.getW500ImageURL(movie.backdropPath);
+        url = NetworkUtils.getLargeImageURL(getContext(), movie.backdropPath);
         if (url != null) {
             Glide.with(this)
                     .load(url)
@@ -239,39 +243,35 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
         if (detailToolbar != null)
             detailToolbar.setTitle(movie.title);
         if (ratingTv != null)
-            ratingTv.setText(String.valueOf(movie.voteAverage));
+            ratingTv.setText(String.valueOf(movie.voteAverage + "/10"));
         if (overviewTv != null)
             overviewTv.setText(movie.overview);
         displayRatingStars(movie.voteAverage);
 
         displayValue(null, taglineTv, movie.tagline);
-        displayValue(dateLabelTv, dateTv, getLocaleDate(movie.releaseDate));
-        displayValue(originalLanguageLabelTv, originalLanguageTv, movie.getDisplayLanguage());
+        displayValue(dateLayout, dateTv, getLocaleDate(movie.releaseDate));
+        displayValue(originalLanguageLayout, originalLanguageTv, movie.getDisplayLanguage());
         if (!Locale.getDefault().getLanguage().equals(movie.originalLanguage))
-            displayValue(originalTitleLabelTv, originalTitleTv, movie.getOriginalTitleIfDifferent());
+            displayValue(originalTitleLayout, originalTitleTv, movie.getOriginalTitleIfDifferent());
         else
-            displayValue(originalTitleLabelTv, originalTitleTv, null);
-        displayValue(countriesLabelTv, countriesTv, movie.getCountriesString());
+            displayValue(originalTitleLayout, originalTitleTv, null);
+        displayValue(countriesLayout, countriesTv, movie.getCountriesString());
         if (!CollectionUtils.isEmpty(movie.countries) && genresLabelTv != null)
             countriesLabelTv.setText(getResources().getQuantityText(R.plurals.countries, movie.countries.size()));
-        displayValue(genresLabelTv, genresTv, movie.getGenresString());
+        displayValue(genresLayout, genresTv, movie.getGenresString());
         if (!CollectionUtils.isEmpty(movie.genres) && genresLabelTv != null)
             genresLabelTv.setText(getResources().getQuantityText(R.plurals.genres, movie.genres.size()));
     }
 
-    private void displayValue(@Nullable TextView labelTv, @Nullable TextView valueTv, @Nullable String value) {
+    private void displayValue(@Nullable View layout, @Nullable TextView valueTv, @Nullable String value) {
         if (!TextUtils.isEmpty(value)) {
-            if (labelTv != null)
-                labelTv.setVisibility(View.VISIBLE);
-            if (valueTv != null) {
-                valueTv.setVisibility(View.VISIBLE);
-                valueTv.setText(value);
-            }
-        } else {
-            if (labelTv != null)
-                labelTv.setVisibility(View.GONE);
+            if (layout != null)
+                layout.setVisibility(View.VISIBLE);
             if (valueTv != null)
-                valueTv.setVisibility(View.GONE);
+                valueTv.setText(value);
+        } else {
+            if (layout != null)
+                layout.setVisibility(View.GONE);
         }
     }
 

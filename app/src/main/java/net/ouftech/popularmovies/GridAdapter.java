@@ -17,6 +17,7 @@
 
 package net.ouftech.popularmovies;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -55,6 +56,8 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
      * A listener that is attached to all ViewHolders to handle image loading events and clicks.
      */
     private interface ViewHolderListener {
+
+        Context getContext();
 
         void onLoadCompleted(ImageView view, int adapterPosition);
 
@@ -103,6 +106,11 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
         ViewHolderListenerImpl(Fragment fragment) {
             this.fragment = fragment;
             this.enterTransitionStarted = new AtomicBoolean();
+        }
+
+        @Override
+        public Context getContext() {
+            return fragment.getContext();
         }
 
         @Override
@@ -183,7 +191,7 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
         void setImage(final int adapterPosition, Movie movie) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
-            URL url = NetworkUtils.getW185ImageURL(movie.posterPath);
+            URL url = viewHolderListener.getContext() != null ? NetworkUtils.getSmallImageURL(viewHolderListener.getContext(), movie.posterPath) : null;
             if (url != null) {
                 String imageURL = url.toString();
                 requestManager
