@@ -344,8 +344,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
             @Override
             public Movie loadInBackground() {
 
-                if (progressBar != null)
-                    progressBar.setVisibility(View.VISIBLE);
+                setProgressBarVisibility(View.VISIBLE);
 
                 Movie tempMovie = null;
                 try {
@@ -372,8 +371,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(@NonNull Loader<Movie> loader, Movie data) {
-        if (progressBar != null)
-            progressBar.setVisibility(View.GONE);
+        setProgressBarVisibility(View.GONE);
 
         if (data != null) {
             movie.countries = data.countries;
@@ -389,5 +387,15 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     @Override
     public void onLoaderReset(@NonNull Loader<Movie> loader) {
 
+    }
+
+    private void setProgressBarVisibility(final int visibility) {
+        if (isRunning() && progressBar != null)
+            getBaseActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(visibility);
+                }
+            });
     }
 }

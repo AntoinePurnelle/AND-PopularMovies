@@ -183,8 +183,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             @Override
             public Pair<ArrayList<Movie>, ArrayList<Movie>> loadInBackground() {
 
-                if (loadingIndicator != null)
-                    loadingIndicator.setVisibility(View.VISIBLE);
+                setProgressBarVisibility(View.VISIBLE);
 
                 ArrayList<Movie> popularMovies = null;
                 ArrayList<Movie> topRatedMovies = null;
@@ -224,8 +223,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(@NonNull Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader, Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
-        if (loadingIndicator != null)
-            loadingIndicator.setVisibility(View.GONE);
+        setProgressBarVisibility(View.GONE);
 
         if (data != null) {
             popularMovies = data.first;
@@ -319,5 +317,15 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     public int getBottomNavigationViewHeight() {
         return bottomNavigationView == null ? 0 : bottomNavigationView.getMeasuredHeight();
+    }
+
+    private void setProgressBarVisibility(final int visibility) {
+        if (isRunning() && loadingIndicator != null)
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadingIndicator.setVisibility(visibility);
+                }
+            });
     }
 }

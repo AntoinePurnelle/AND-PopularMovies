@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="popular">Populaires</string>
+    <string name="top_rated">Mieux notés</string>
+    <string name="error_message">Une erreur est survenue</string>
+    <string name="original_title">Titre original</string>
+    <string name="original_language">Langue originale</string>
+    <string name="release_date">Date de sortie</string>
+    <string name="runtime">Durée</string>
+</resources>

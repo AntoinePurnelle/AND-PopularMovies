@@ -168,7 +168,8 @@
                         android:columnCount="2"
                         app:alignContent="stretch"
                         app:alignItems="stretch"
-                        app:flexWrap="wrap">
+                        app:flexWrap="wrap"
+                        android:layout_gravity="center">
 
                         <LinearLayout
                             android:id="@+id/original_title_layout"
