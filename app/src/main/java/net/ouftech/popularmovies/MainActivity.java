@@ -223,9 +223,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onLoadFinished(Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader, Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
+    public void onLoadFinished(@NonNull Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader, Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
         if (loadingIndicator != null)
-            loadingIndicator.setVisibility(View.INVISIBLE);
+            loadingIndicator.setVisibility(View.GONE);
 
         if (data != null) {
             popularMovies = data.first;
@@ -237,7 +237,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onLoaderReset(Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader) {
+    public void onLoaderReset(@NonNull Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader) {
 
     }
 

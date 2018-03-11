@@ -70,6 +70,8 @@ public class ImagePagerFragment extends BaseFragment {
             }
         });
 
+        viewPager.setOffscreenPageLimit(2);
+
         prepareSharedElementTransition();
 
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.

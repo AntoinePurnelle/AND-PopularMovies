@@ -58,170 +58,184 @@
 
     </android.support.design.widget.AppBarLayout>
 
-
-    <android.support.v4.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
+        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <ProgressBar
+            android:id="@+id/detail_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"/>
+
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="@dimen/default_padding">
-
-            <TextView
-                android:id="@+id/tagline_tv"
-                style="@style/DefaultText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                tools:text="Just because you are a character doesn't mean you have character." />
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal"
-                android:paddingTop="@dimen/small_padding">
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/ic_star_1_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_star_24dp" />
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/ic_star_2_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_star_24dp" />
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/ic_star_3_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_star_24dp" />
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/ic_star_4_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_star_half_24dp" />
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/ic_star_5_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_star_border_24dp" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/default_padding">
 
                 <TextView
-                    android:id="@+id/rating_tv"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tagline_tv"
+                    style="@style/DefaultText"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="end"
-                    android:paddingEnd="@dimen/default_padding"
-                    android:paddingStart="@dimen/default_padding"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/subtitle_text_size"
-                    tools:text="3.5/5" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="@dimen/small_padding">
-
-                <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:id="@+id/image"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/card_view_height"
-                    android:layout_gravity="center|top"
-                    android:layout_weight="2"
-                    android:scaleType="fitCenter" />
-
-                <View
-                    android:layout_width="@dimen/small_padding"
-                    android:layout_height="match_parent" />
+                    android:gravity="center"
+                    tools:text="Just because you are a character doesn't mean you have character." />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="3"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/small_padding">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/ic_star_1_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star_24dp" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/ic_star_2_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star_24dp" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/ic_star_3_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star_24dp" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/ic_star_4_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star_half_24dp" />
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/ic_star_5_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star_border_24dp" />
 
                     <TextView
-                        android:id="@+id/original_title_label_tv"
-                        style="@style/LabelText"
-                        android:text="@string/original_title" />
-
-                    <TextView
-                        android:id="@+id/original_title_tv"
-                        style="@style/DefaultText"
-                        tools:text="Pulp Fiction" />
-
-                    <TextView
-                        android:id="@+id/original_language_label_tv"
-                        style="@style/LabelText"
-                        android:text="@string/original_language" />
-
-                    <TextView
-                        android:id="@+id/original_language_tv"
-                        style="@style/DefaultText"
-                        tools:text="English" />
-
-                    <TextView
-                        android:id="@+id/date_label_tv"
-                        style="@style/LabelText"
-                        android:text="@string/release_date" />
-
-                    <TextView
-                        android:id="@+id/date_tv"
-                        style="@style/DefaultText"
-                        tools:text="9/10/1994" />
-
-                    <TextView
-                        android:id="@+id/countries_label_tv"
-                        style="@style/LabelText"
-                        tools:text="Countries" />
-
-                    <TextView
-                        android:id="@+id/countries_tv"
-                        style="@style/DefaultText"
-                        tools:text="USA, Belgium" />
-
-                    <TextView
-                        android:id="@+id/genres_label_tv"
-                        style="@style/LabelText"
-                        tools:text="Countries" />
-
-                    <TextView
-                        android:id="@+id/genres_tv"
-                        style="@style/DefaultText"
-                        tools:text="Thriller, Crime" />
+                        android:id="@+id/rating_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="end"
+                        android:paddingEnd="@dimen/default_padding"
+                        android:paddingStart="@dimen/default_padding"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/subtitle_text_size"
+                        tools:text="3.5/5" />
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/small_padding">
+
+                    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/image"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/card_view_height"
+                        android:layout_gravity="center|top"
+                        android:layout_weight="2"
+                        android:scaleType="fitCenter" />
+
+                    <View
+                        android:layout_width="@dimen/small_padding"
+                        android:layout_height="match_parent" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="3"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/original_title_label_tv"
+                            style="@style/LabelText"
+                            android:text="@string/original_title" />
+
+                        <TextView
+                            android:id="@+id/original_title_tv"
+                            style="@style/DefaultText"
+                            tools:text="Pulp Fiction" />
+
+                        <TextView
+                            android:id="@+id/original_language_label_tv"
+                            style="@style/LabelText"
+                            android:text="@string/original_language" />
+
+                        <TextView
+                            android:id="@+id/original_language_tv"
+                            style="@style/DefaultText"
+                            tools:text="English" />
+
+                        <TextView
+                            android:id="@+id/date_label_tv"
+                            style="@style/LabelText"
+                            android:text="@string/release_date" />
+
+                        <TextView
+                            android:id="@+id/date_tv"
+                            style="@style/DefaultText"
+                            tools:text="9/10/1994" />
+
+                        <TextView
+                            android:id="@+id/countries_label_tv"
+                            style="@style/LabelText"
+                            tools:text="Countries" />
+
+                        <TextView
+                            android:id="@+id/countries_tv"
+                            style="@style/DefaultText"
+                            tools:text="USA, Belgium" />
+
+                        <TextView
+                            android:id="@+id/genres_label_tv"
+                            style="@style/LabelText"
+                            tools:text="Countries" />
+
+                        <TextView
+                            android:id="@+id/genres_tv"
+                            style="@style/DefaultText"
+                            tools:text="Thriller, Crime" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/overview_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/default_padding"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    tools:text="A burger-loving hit man, his philosophical partner, a drug-addled gangster's moll and a washed-up boxer converge in this sprawling, comedic crime caper. Their adventures unfurl in three stories that ingeniously trip back and forth in time." />
+
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/overview_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/default_padding"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                tools:text="A burger-loving hit man, his philosophical partner, a drug-addled gangster's moll and a washed-up boxer converge in this sprawling, comedic crime caper. Their adventures unfurl in three stories that ingeniously trip back and forth in time." />
-
-
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
+        </android.support.v4.widget.NestedScrollView>
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

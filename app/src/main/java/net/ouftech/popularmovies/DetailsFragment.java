@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -109,6 +110,8 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     TextView genresLabelTv;
     @BindView(R.id.genres_tv)
     TextView genresTv;
+    @BindView(R.id.detail_progressbar)
+    ProgressBar progressBar;
 
     Unbinder unbinder;
 
@@ -341,6 +344,9 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
             @Override
             public Movie loadInBackground() {
 
+                if (progressBar != null)
+                    progressBar.setVisibility(View.VISIBLE);
+
                 Movie tempMovie = null;
                 try {
                     URL popularMoviesURL = NetworkUtils.getMovieURL(getActivity(), movie.id);
@@ -365,7 +371,10 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onLoadFinished(Loader<Movie> loader, Movie data) {
+    public void onLoadFinished(@NonNull Loader<Movie> loader, Movie data) {
+        if (progressBar != null)
+            progressBar.setVisibility(View.GONE);
+
         if (data != null) {
             movie.countries = data.countries;
             movie.genres = data.genres;
@@ -378,7 +387,7 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onLoaderReset(Loader<Movie> loader) {
+    public void onLoaderReset(@NonNull Loader<Movie> loader) {
 
     }
 }
