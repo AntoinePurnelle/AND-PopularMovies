@@ -61,6 +61,9 @@ dependencies {
     compile 'com.hannesdorfmann.fragmentargs:annotation:3.0.2'
     annotationProcessor 'com.hannesdorfmann.fragmentargs:processor:3.0.2'
     implementation 'com.google.android:flexbox:0.3.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

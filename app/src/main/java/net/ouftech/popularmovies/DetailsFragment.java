@@ -17,14 +17,10 @@
 
 package net.ouftech.popularmovies;
 
-import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -41,16 +37,16 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.gson.Gson;
 import com.hannesdorfmann.fragmentargs.annotation.Arg;
 import com.hannesdorfmann.fragmentargs.annotation.FragmentWithArgs;
 
 import net.ouftech.popularmovies.Model.Movie;
 import net.ouftech.popularmovies.commons.BaseFragment;
+import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;
+import net.ouftech.popularmovies.commons.Logger;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
-import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -61,14 +57,16 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A fragment for displaying an image.
  */
 @FragmentWithArgs
-public class DetailsFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Movie> {
-
-    private static final int MOVIE_LOADER = 9108;
+public class DetailsFragment extends BaseFragment {
 
     @BindView(R.id.ic_star_1_iv)
     AppCompatImageView icStar1Iv;
@@ -229,13 +227,44 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
 
     private void loadMovie() {
         if (!movie.isFullyLoaded && getActivity() != null) {
-            LoaderManager loaderManager = getActivity().getSupportLoaderManager();
-            Loader<String[]> moviesLoader = loaderManager.getLoader(MOVIE_LOADER);
-            if (moviesLoader == null) {
-                loaderManager.initLoader(Integer.valueOf(movie.id), null, this);
-            } else {
-                loaderManager.restartLoader(MOVIE_LOADER, null, this);
-            }
+            setProgressBarVisibility(View.VISIBLE);
+
+            final String id = movie.id;
+            NetworkUtils.getMovie(getActivity(), id, new Callback<Movie>() {
+                @Override
+                public void onResponse(@NonNull Call<Movie> call, @NonNull Response<Movie> response) {
+                    Movie tempMovie = response.body();
+
+                    if (tempMovie == null) {
+
+                        ResponseBody errorBody = response.errorBody();
+                        CallException callException = new CallException(response.code(), response.message(), errorBody, call);
+
+                        if (errorBody == null) {
+                            Logger.e(getLotTag(), String.format("Error while executing getMovie call for movie %s", id), callException);
+                        } else {
+                            Logger.e(getLotTag(), String.format("Error while executing getMovie call for movie %s. ErrorBody = %s", id, errorBody), callException);
+                        }
+                        setProgressBarVisibility(View.GONE);
+                        return;
+                    }
+
+                    movie.countries = tempMovie.countries;
+                    movie.genres = tempMovie.genres;
+                    movie.runtime = tempMovie.runtime;
+                    movie.countries = tempMovie.countries;
+                    movie.tagline = tempMovie.tagline;
+                    movie.isFullyLoaded = true;
+                    displayData();
+                    setProgressBarVisibility(View.GONE);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Movie> call, @NonNull Throwable t) {
+                    Logger.e(getLotTag(), String.format("Error while executing getMovie call for movie %s", id), t);
+                    setProgressBarVisibility(View.GONE);
+                }
+            });
         }
     }
 
@@ -322,71 +351,6 @@ public class DetailsFragment extends BaseFragment implements LoaderManager.Loade
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    @Override
-    public Loader<Movie> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<Movie>(getActivity().getApplicationContext()) {
-
-            Movie result;
-
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-
-                if (result != null)
-                    deliverResult(result);
-                else
-                    forceLoad();
-            }
-
-            @Override
-            public Movie loadInBackground() {
-
-                setProgressBarVisibility(View.VISIBLE);
-
-                Movie tempMovie = null;
-                try {
-                    URL popularMoviesURL = NetworkUtils.getMovieURL(getActivity(), movie.id);
-                    String movieResponse = NetworkUtils.getResponseFromHttpUrl(popularMoviesURL);
-                    if (movieResponse != null)
-                        tempMovie = new Gson().fromJson(movieResponse, Movie.class);
-                } catch (IOException e) {
-                    loge("Error while requesting movie", e);
-                }
-
-                logd("finished");
-                deliverResult(tempMovie);
-                return tempMovie;
-            }
-
-            @Override
-            public void deliverResult(Movie data) {
-                result = data;
-                super.deliverResult(data);
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Movie> loader, Movie data) {
-        setProgressBarVisibility(View.GONE);
-
-        if (data != null) {
-            movie.countries = data.countries;
-            movie.genres = data.genres;
-            movie.runtime = data.runtime;
-            movie.countries = data.countries;
-            movie.tagline = data.tagline;
-            movie.isFullyLoaded = true;
-            displayData();
-        }
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Movie> loader) {
-
     }
 
     private void setProgressBarVisibility(final int visibility) {

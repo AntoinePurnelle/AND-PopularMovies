@@ -17,11 +17,12 @@
 package net.ouftech.popularmovies.commons;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import net.ouftech.popularmovies.Model.Movie;
+import net.ouftech.popularmovies.Model.Result;
 import net.ouftech.popularmovies.R;
 
 import java.io.IOException;
@@ -29,8 +30,18 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Scanner;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 /**
  * Created by antoine.purnelle@ouftech.net on 27-02-18.
@@ -43,66 +54,76 @@ public class NetworkUtils {
         return "NetworkUtils";
     }
 
-    private static final String TMDB_BASE_URL =
-            "https://api.themoviedb.org/3/movie";
-    private static final String TMDB_POPULAR_URL =
-            TMDB_BASE_URL + "/popular";
-    private static final String TMDB_TOP_RATED_URL =
-            TMDB_BASE_URL + "/top_rated";
+    public interface TMDBClient {
+        @GET("3/movie/{path}")
+        Call<Result> getMoviesList(@Path("path") String path, @QueryMap HashMap<String, String> parameters);
+        @GET("3/movie/{id}")
+        Call<Movie> getMovie(@Path("id") String path, @QueryMap HashMap<String, String> parameters);
+    }
 
-    private static final String TMDB_IMAGE_BASE_URL =
-            "https://image.tmdb.org/t/p/";
+    private static final String TMDB_BASE_URL =
+            "https://api.themoviedb.org/";
+    public static final String TMDB_POPULAR_PATH = "popular";
+    public static final String TMDB_TOP_RATED_PATH = "top_rated";
+
+    private static final String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
 
     private static final String API_KEY_PARAM = "api_key";
     private static final String LANGUAGE_PARAM = "language";
     private static final String IMAGE_LANGUAGE_PARAM = "include_image_language";
 
-    @Nullable
-    public static URL getMovieURL(@Nullable Context context, @NonNull String id) {
-        return buildMoviesUrl(context, TMDB_BASE_URL + "/" + id);
-    }
+    private static TMDBClient client;
 
-    @Nullable
-    public static URL getPopularMoviesURL(@Nullable Context context) {
-        return buildMoviesUrl(context, TMDB_POPULAR_URL);
-    }
+    private static TMDBClient getTMDBClient() {
+        if (client == null) {
+            OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
-    @Nullable
-    public static URL getTopRatedMoviesURL(@Nullable Context context) {
-        return buildMoviesUrl(context, TMDB_TOP_RATED_URL);
-    }
+            Retrofit.Builder builder = new Retrofit.Builder()
+                    .baseUrl("https://api.themoviedb.org/")
+                    .addConverterFactory(
+                            GsonConverterFactory.create()
+                    );
 
-    @Nullable
-    private static URL buildMoviesUrl(@Nullable Context context, String baseURL) {
-        if (context == null) {
-            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException("Context is null"), false);
-            return null;
+            Retrofit retrofit = builder.client(httpClient.build()).build();
+
+            client = retrofit.create(TMDBClient.class);
         }
 
-        if (TextUtils.isEmpty(baseURL)) {
-            Logger.e(getLotTag(), "Cannot build URL", new NullPointerException("Base URL is empty"));
-            return null;
-        }
+        return client;
+    }
+
+    private static HashMap<String, String> getParams(@NonNull Context context) {
+        HashMap<String, String> params = new HashMap<>();
 
         String apiKey = context.getString(R.string.movie_db_api_key);
-        String localLanguage = Locale.getDefault().getLanguage();
+        String localLanguage = Locale.getDefault().getLanguage() + "a";
         String imageLanguage = localLanguage + ",null";
 
-        Uri builtUri = Uri.parse(baseURL).buildUpon()
-                .appendQueryParameter(API_KEY_PARAM, apiKey)
-                .appendQueryParameter(LANGUAGE_PARAM, localLanguage)
-                .appendQueryParameter(IMAGE_LANGUAGE_PARAM, imageLanguage)
-                .build();
+        params.put(API_KEY_PARAM, apiKey);
+        params.put(LANGUAGE_PARAM, localLanguage);
+        params.put(IMAGE_LANGUAGE_PARAM, imageLanguage);
 
-        URL url = null;
-        try {
-            url = new URL(builtUri.toString());
-            Logger.d(getLotTag(), "Built URL " + url);
-        } catch (MalformedURLException e) {
-            Logger.e(getLotTag(), "Error while building URL", e);
+        return params;
+    }
+
+    public static void getMovie(@Nullable Context context, @NonNull final String id, @NonNull Callback<Movie> callback) {
+        if (context == null) {
+            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException("Context is null"), false);
+            return;
         }
 
-        return url;
+        Call<Movie> call = getTMDBClient().getMovie(id, getParams(context));
+        call.enqueue(callback);
+    }
+
+    public static void getMovies(@NonNull String path, @Nullable Context context, @NonNull Callback<Result> callback) {
+        if (context == null) {
+            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException("Context is null"), false);
+            return;
+        }
+
+        Call<Result> call = getTMDBClient().getMoviesList(path, getParams(context));
+        call.enqueue(callback);
     }
 
     @Nullable
@@ -125,7 +146,6 @@ public class NetworkUtils {
         URL url = null;
         try {
             url = new URL(TMDB_IMAGE_BASE_URL + baseURL + imagePath);
-            Logger.d(getLotTag(), "Built URL " + url);
         } catch (MalformedURLException e) {
             Logger.e(getLotTag(), "Error while building URL", e);
         }

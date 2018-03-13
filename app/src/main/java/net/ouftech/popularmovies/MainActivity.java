@@ -19,38 +19,35 @@ package net.ouftech.popularmovies;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.util.Pair;
-import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.gson.Gson;
 
 import net.ouftech.popularmovies.Model.Movie;
 import net.ouftech.popularmovies.Model.Result;
 import net.ouftech.popularmovies.commons.BaseActivity;
+import net.ouftech.popularmovies.commons.CallException;
+import net.ouftech.popularmovies.commons.CollectionUtils;
+import net.ouftech.popularmovies.commons.Logger;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import io.fabric.sdk.android.Fabric;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Pair<ArrayList<Movie>, ArrayList<Movie>>> {
+public class MainActivity extends BaseActivity {
 
     @NonNull
     @Override
@@ -88,8 +85,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private boolean isShowingDetails = false;
     private static int sortCriteria = 0;
 
-    protected ArrayList<Movie> popularMovies;
-    protected ArrayList<Movie> topRatedMovies;
+    protected ArrayList<Movie> popularMovies = new ArrayList<>();
+    protected ArrayList<Movie> topRatedMovies = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,12 +101,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                     case R.id.navigation_popular:
                         gridFragment.swapData(popularMovies);
                         sortCriteria = SORT_POPULAR;
-                        swapData();
+                        loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
                         return true;
                     case R.id.navigation_top_rated:
                         gridFragment.swapData(topRatedMovies);
                         sortCriteria = SORT_TOP_RATED;
-                        swapData();
+                        loadMovies(topRatedMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
                         return true;
                 }
                 return false;
@@ -124,9 +121,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             topRatedMovies = savedInstanceState.getParcelableArrayList(KEY_TOP_RATED_MOVIES);
             sortCriteria = savedInstanceState.getInt(KEY_SORT_CRITERIA, SORT_POPULAR);
             gridFragment = (GridFragment) fragmentManager.findFragmentByTag(GridFragment.class.getSimpleName());
-            if (sortCriteria == SORT_TOP_RATED)
+            if (sortCriteria == SORT_TOP_RATED) {
                 bottomNavigationView.setSelectedItemId(R.id.navigation_top_rated);
-            swapData();
+                loadMovies(topRatedMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
+            } else {
+                loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
+            }
 
             if (isShowingDetails)
                 bottomNavigationView.setVisibility(View.GONE);
@@ -135,7 +135,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             return;
         }
 
-        loadMovies();
+        loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
 
         gridFragment = new GridFragment();
         fragmentManager
@@ -151,92 +151,51 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             gridFragment.swapData(topRatedMovies);
     }
 
-    private void loadMovies() {
+    private void loadMovies(@NonNull final ArrayList<Movie> movies, @NonNull String path) {
+        if (!isRunning())
+            return;
 
-        LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<String[]> moviesLoader = loaderManager.getLoader(MOVIES_LOADER);
-        if (moviesLoader == null) {
-            loaderManager.initLoader(MOVIES_LOADER, null, this);
-        } else {
-            loaderManager.restartLoader(MOVIES_LOADER, null, this);
-        }
+        if (movies.isEmpty()) {
+            setProgressBarVisibility(View.VISIBLE);
+            NetworkUtils.getMovies(path, this, new Callback<Result>() {
+                @Override
+                public void onResponse(@NonNull Call<Result> call, @NonNull Response<Result> response) {
+                    Result result = response.body();
 
-    }
+                    if (result == null) {
+                        ResponseBody errorBody = response.errorBody();
+                        CallException callException = new CallException(response.code(), response.message(), errorBody, call);
 
-    @SuppressLint("StaticFieldLeak")
-    @Override
-    public Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<Pair<ArrayList<Movie>, ArrayList<Movie>>>(getApplicationContext()) {
-
-            Pair<ArrayList<Movie>, ArrayList<Movie>> result;
-
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-
-                if (result != null)
-                    deliverResult(result);
-                else
-                    forceLoad();
-            }
-
-            @Override
-            public Pair<ArrayList<Movie>, ArrayList<Movie>> loadInBackground() {
-
-                setProgressBarVisibility(View.VISIBLE);
-
-                ArrayList<Movie> popularMovies = null;
-                ArrayList<Movie> topRatedMovies = null;
-                try {
-                    URL popularMoviesURL = NetworkUtils.getPopularMoviesURL(MainActivity.this);
-                    String popularMoviesResponse = NetworkUtils.getResponseFromHttpUrl(popularMoviesURL);
-                    if (!TextUtils.isEmpty(popularMoviesResponse)) {
-                        popularMovies = new Gson().fromJson(popularMoviesResponse, Result.class).movies;
-                        logd("popularMovies " + popularMovies.size());
+                        if (errorBody == null) {
+                            Logger.e(getLotTag(), "Error while executing getPopularMovies call", callException);
+                        } else {
+                            Logger.e(getLotTag(), String.format("Error while executing getTopRatedMovies call. ErrorBody = %s", errorBody), callException);
+                        }
+                        setProgressBarVisibility(View.GONE);
+                        showErrorMessage();
+                        swapData();
+                        return;
                     }
-                } catch (IOException e) {
-                    loge("Error while requesting movies", e);
+
+                    movies.addAll(result.movies);
+                    if (CollectionUtils.isEmpty(movies)) {
+                        Logger.e(getLotTag(), "Error while executing getPopularMovies call. Returned list is empty", new CallException(response.code(), response.message(), null, call));
+                        showErrorMessage();
+                    }
+                    swapData();
+                    setProgressBarVisibility(View.GONE);
                 }
 
-                try {
-                    URL topRatedMoviesURL = NetworkUtils.getTopRatedMoviesURL(MainActivity.this);
-                    String topRatedMoviesResponse = NetworkUtils.getResponseFromHttpUrl(topRatedMoviesURL);
-                    if (!TextUtils.isEmpty(topRatedMoviesResponse)) {
-                        topRatedMovies = new Gson().fromJson(topRatedMoviesResponse, Result.class).movies;
-                        logd("topRatedMovies " + topRatedMovies.size());
-                    }
-                } catch (IOException e) {
-                    loge("Error while requesting movies", e);
+                @Override
+                public void onFailure(@NonNull Call<Result> call, @NonNull Throwable t) {
+                    Logger.e(getLotTag(), "Error while executing getPopularMovies call", t);
+                    setProgressBarVisibility(View.GONE);
+                    showErrorMessage();
                 }
-
-                logd("finished");
-                return new Pair<>(popularMovies, topRatedMovies);
-            }
-
-            @Override
-            public void deliverResult(Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
-                result = data;
-                super.deliverResult(data);
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader, Pair<ArrayList<Movie>, ArrayList<Movie>> data) {
-        setProgressBarVisibility(View.GONE);
-
-        if (data != null) {
-            popularMovies = data.first;
-            topRatedMovies = data.second;
-            gridFragment.swapData(popularMovies);
+            });
         } else {
-            showErrorMessage();
+            swapData();
         }
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Pair<ArrayList<Movie>, ArrayList<Movie>>> loader) {
-
     }
 
     private void showErrorMessage() {

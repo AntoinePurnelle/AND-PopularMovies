@@ -16,7 +16,6 @@
   -->
 
 <resources>
-  <integer name="grid_span_count">3</integer>
   <dimen name="card_view_height">449dp</dimen>
   <dimen name="card_view_width">300dp</dimen>
 </resources>
