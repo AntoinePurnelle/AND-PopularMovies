@@ -1,10 +1,27 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.25.1'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://clojars.org/repo/" }
+}
+
 
 android {
     compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "net.ouftech.popularmovies"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -20,9 +37,33 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:27.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    compile 'com.google.firebase:firebase-core:11.8.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
+        transitive = true
+    }
+    compile 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    compile 'frankiesardo:icepick:3.2.0'
+    provided 'frankiesardo:icepick-processor:3.2.0'
+    annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.android.support:recyclerview-v7:27.1.0'
+    compile 'com.android.support:cardview-v7:27.1.0'
+    compile 'com.github.bumptech.glide:glide:4.1.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+    compile 'com.android.support:support-annotations:27.1.0'
+    compile 'com.hannesdorfmann.fragmentargs:annotation:3.0.2'
+    annotationProcessor 'com.hannesdorfmann.fragmentargs:processor:3.0.2'
+    implementation 'com.google.android:flexbox:0.3.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+
 }
+
+apply plugin: 'com.google.gms.google-services'

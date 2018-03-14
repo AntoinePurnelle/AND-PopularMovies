@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="error_message">An error has occurred</string>
+    <string name="original_title">Original title</string>
+    <string name="original_language">Original language</string>
+    <string name="release_date">Release date</string>
+    <string name="runtime">Runtime</string>
+    <string name="hour_unit">h</string>
+    <string name="minute_unit">min</string>
+    <string name="backdrop_content_description">Movie cover image</string>
+    <string name="poster_content_description">Movie poster image</string>
+    <string name="country">Country</string>
+    <string name="countries">Countries</string>
+    <string name="genre">Genre</string>
+    <string name="genres">Genres</string>
+    <string name="small_image" translatable="false">/w185</string>
+    <string name="large_image" translatable="false">/w500</string>
+    <!--<string name="movie_db_api_key" translatable="false">[YOUR API KEY]</string>-->
 </resources>

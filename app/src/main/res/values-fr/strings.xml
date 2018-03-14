@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="popular">Populaires</string>
+    <string name="top_rated">Mieux notés</string>
+    <string name="error_message">Une erreur est survenue</string>
+    <string name="original_title">Titre original</string>
+    <string name="original_language">Langue originale</string>
+    <string name="release_date">Date de sortie</string>
+    <string name="runtime">Durée</string>
+    <string name="backdrop_content_description">Image de couvertue du film</string>
+    <string name="poster_content_description">Affiche du film</string>
+    <string name="hour_unit">h</string>
+    <string name="minute_unit">min</string>
+    <string name="country">Pays</string>
+    <string name="countries">Pays</string>
+    <string name="genre">Genre</string>
+    <string name="genres">Genres</string>
+</resources>
