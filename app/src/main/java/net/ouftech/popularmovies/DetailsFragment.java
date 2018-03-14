@@ -40,7 +40,7 @@ import com.bumptech.glide.request.target.Target;
 import com.hannesdorfmann.fragmentargs.annotation.Arg;
 import com.hannesdorfmann.fragmentargs.annotation.FragmentWithArgs;
 
-import net.ouftech.popularmovies.Model.Movie;
+import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.commons.BaseFragment;
 import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;
@@ -94,6 +94,8 @@ public class DetailsFragment extends BaseFragment {
     TextView originalLanguageTv;
     @BindView(R.id.date_tv)
     TextView dateTv;
+    @BindView(R.id.runtime_tv)
+    TextView runtimeTv;
     @BindView(R.id.countries_label_tv)
     TextView countriesLabelTv;
     @BindView(R.id.countries_tv)
@@ -114,6 +116,8 @@ public class DetailsFragment extends BaseFragment {
     LinearLayout countriesLayout;
     @BindView(R.id.genres_layout)
     LinearLayout genresLayout;
+    @BindView(R.id.runtime_layout)
+    LinearLayout runtimeLayout;
 
     Unbinder unbinder;
 
@@ -154,7 +158,7 @@ public class DetailsFragment extends BaseFragment {
         displayData();
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
-        URL url = NetworkUtils.getSmallImageURL(getContext(), movie.posterPath);
+        URL url = getContext() == null ? null : NetworkUtils.getSmallImageURL(getContext(), movie.posterPath);
         if (url != null) {
             Glide.with(this)
                     .load(url)
@@ -245,6 +249,7 @@ public class DetailsFragment extends BaseFragment {
                         } else {
                             Logger.e(getLotTag(), String.format("Error while executing getMovie call for movie %s. ErrorBody = %s", id, errorBody), callException);
                         }
+
                         setProgressBarVisibility(View.GONE);
                         return;
                     }
@@ -279,17 +284,20 @@ public class DetailsFragment extends BaseFragment {
 
         displayValue(null, taglineTv, movie.tagline);
         displayValue(dateLayout, dateTv, getLocaleDate(movie.releaseDate));
+        displayValue(runtimeLayout, runtimeTv, getDisplayRuntime());
         displayValue(originalLanguageLayout, originalLanguageTv, movie.getDisplayLanguage());
         if (!Locale.getDefault().getLanguage().equals(movie.originalLanguage))
             displayValue(originalTitleLayout, originalTitleTv, movie.getOriginalTitleIfDifferent());
         else
             displayValue(originalTitleLayout, originalTitleTv, null);
+
+        if (countriesLabelTv != null && CollectionUtils.getSize(movie.countries) > 1)
+            countriesLabelTv.setText(getString(R.string.countries));
         displayValue(countriesLayout, countriesTv, movie.getCountriesString());
-        if (!CollectionUtils.isEmpty(movie.countries) && genresLabelTv != null)
-            countriesLabelTv.setText(getResources().getQuantityText(R.plurals.countries, movie.countries.size()));
+
+        if (genresLabelTv != null && CollectionUtils.getSize(movie.genres) == 1)
+            genresLabelTv.setText(getString(R.string.genre));
         displayValue(genresLayout, genresTv, movie.getGenresString());
-        if (!CollectionUtils.isEmpty(movie.genres) && genresLabelTv != null)
-            genresLabelTv.setText(getResources().getQuantityText(R.plurals.genres, movie.genres.size()));
     }
 
     private void displayValue(@Nullable View layout, @Nullable TextView valueTv, @Nullable String value) {
@@ -308,7 +316,7 @@ public class DetailsFragment extends BaseFragment {
         if (TextUtils.isEmpty(dateString))
             return "";
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd", Locale.getDefault());
 
         try {
             Date date = sdf.parse(dateString);
@@ -318,6 +326,31 @@ public class DetailsFragment extends BaseFragment {
             loge(String.format("Error while parsing date %s", dateString), e);
             return "";
         }
+    }
+
+    private String getDisplayRuntime() {
+        if (movie == null || movie.runtime <= 0 || getContext() == null)
+            return null;
+
+        int hours = movie.runtime / 60;
+        int minutes = movie.runtime % 60;
+
+        String hoursString;
+        String minutesString;
+
+        if (hours == 0)
+            hoursString = "";
+        else
+            hoursString = String.valueOf(hours) + getContext().getString(R.string.hour_unit);
+
+        if (minutes == 0)
+            minutesString = "";
+        else if (minutes < 10)
+            minutesString = "0" + minutes + getContext().getString(R.string.minute_unit);
+        else
+            minutesString = String.valueOf(minutes) + getContext().getString(R.string.minute_unit);
+
+        return hoursString + minutesString;
     }
 
     private void displayRatingStars(float ratingFloat) {
@@ -340,11 +373,6 @@ public class DetailsFragment extends BaseFragment {
             star.setImageResource(R.drawable.ic_star_24dp);
         else
             star.setImageResource(R.drawable.ic_star_half_24dp);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override

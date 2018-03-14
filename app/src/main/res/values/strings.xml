@@ -7,15 +7,15 @@
     <string name="original_language">Original language</string>
     <string name="release_date">Release date</string>
     <string name="runtime">Runtime</string>
-    <plurals name="countries">
-        <item quantity="one">Country</item>
-        <item quantity="other">Countries</item>
-    </plurals>
-    <plurals name="genres">
-        <item quantity="one">Genre</item>
-        <item quantity="other">Genres</item>
-    </plurals>
-    <string name="small_image">/w185</string>
-    <string name="large_image">/w500</string>
-    <!--<string name="movie_db_api_key">[YOUR API KEY]</string>-->
+    <string name="hour_unit">h</string>
+    <string name="minute_unit">min</string>
+    <string name="backdrop_content_description">Movie cover image</string>
+    <string name="poster_content_description">Movie poster image</string>
+    <string name="country">Country</string>
+    <string name="countries">Countries</string>
+    <string name="genre">Genre</string>
+    <string name="genres">Genres</string>
+    <string name="small_image" translatable="false">/w185</string>
+    <string name="large_image" translatable="false">/w500</string>
+    <!--<string name="movie_db_api_key" translatable="false">[YOUR API KEY]</string>-->
 </resources>

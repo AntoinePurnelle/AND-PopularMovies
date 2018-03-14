@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.ouftech.popularmovies.Model;
+package net.ouftech.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -25,10 +25,8 @@ import com.google.gson.annotations.SerializedName;
 
 import net.ouftech.popularmovies.commons.CollectionUtils;
 
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -88,7 +86,7 @@ public class Movie implements Parcelable {
     public String backdropPath;
 
     @SerializedName(RUNTIME_KEY)
-    public String runtime;
+    public int runtime;
 
     @SerializedName(PRODUCTION_COUNTRIES_KEY)
     public ArrayList<Country> countries;
@@ -152,15 +150,15 @@ public class Movie implements Parcelable {
         originalLanguage = in.readString();
         originalTitle = in.readString();
         backdropPath = in.readString();
-        runtime = in.readString();
+        runtime = in.readInt();
         if (in.readByte() == 0x01) {
-            countries = new ArrayList<Country>();
+            countries = new ArrayList<>();
             in.readList(countries, Country.class.getClassLoader());
         } else {
             countries = null;
         }
         if (in.readByte() == 0x01) {
-            genres = new ArrayList<Genre>();
+            genres = new ArrayList<>();
             in.readList(genres, Genre.class.getClassLoader());
         } else {
             genres = null;
@@ -187,7 +185,7 @@ public class Movie implements Parcelable {
         dest.writeString(originalLanguage);
         dest.writeString(originalTitle);
         dest.writeString(backdropPath);
-        dest.writeString(runtime);
+        dest.writeInt(runtime);
         if (countries == null) {
             dest.writeByte((byte) (0x00));
         } else {

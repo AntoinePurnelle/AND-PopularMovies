@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.ouftech.popularmovies.Model;
+package net.ouftech.popularmovies.model;
 
 import com.google.gson.annotations.SerializedName;
 

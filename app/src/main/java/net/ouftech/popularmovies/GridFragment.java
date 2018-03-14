@@ -30,7 +30,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 
-import net.ouftech.popularmovies.Model.Movie;
+import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.commons.BaseFragment;
 
 import java.util.ArrayList;
@@ -76,12 +76,13 @@ public class GridFragment extends BaseFragment {
         scrollToPosition();
 
         ViewTreeObserver vto = view.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener (new ViewTreeObserver.OnGlobalLayoutListener() {
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                recyclerView.setPadding(0,0,0, ((MainActivity) getActivity()).getBottomNavigationViewHeight());
 
+                if (getActivity() != null && getActivity() instanceof MainActivity)
+                    recyclerView.setPadding(0, 0, 0, ((MainActivity) getActivity()).getBottomNavigationViewHeight());
             }
         });
     }

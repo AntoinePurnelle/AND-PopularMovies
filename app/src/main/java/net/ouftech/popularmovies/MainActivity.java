@@ -30,8 +30,8 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 
-import net.ouftech.popularmovies.Model.Movie;
-import net.ouftech.popularmovies.Model.Result;
+import net.ouftech.popularmovies.model.Movie;
+import net.ouftech.popularmovies.model.Result;
 import net.ouftech.popularmovies.commons.BaseActivity;
 import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;

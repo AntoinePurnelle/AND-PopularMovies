@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 Antoine PURNELLE
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.ouftech.popularmovies.commons;
 
 import android.support.annotation.NonNull;
@@ -13,13 +29,13 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 
 /**
- * Created by antoi on 13-03-18.
+ * Created by antoine.purnelle@ouftech.net on 13-03-18.
  */
 
 public class CallException extends Exception {
 
     @NonNull
-    protected String getLotTag() {
+    private String getLotTag() {
         return "CallException";
     }
 
@@ -29,15 +45,17 @@ public class CallException extends Exception {
     @Nullable
     private TMDBError tmdbError;
 
-    public CallException(int code, String message, ResponseBody errorBody, Call call) {
+    public CallException(int code, String message, @Nullable ResponseBody errorBody, Call call) {
         this.code = code;
         this.message = message;
 
         try {
-            tmdbError = new Gson().fromJson(errorBody.string(), TMDBError.class);
+            if (errorBody != null)
+                tmdbError = new Gson().fromJson(errorBody.string(), TMDBError.class);
         } catch (IOException | JsonSyntaxException e) {
             Logger.w(getLotTag(), String.format("Cannot build TMDBError based on message %s", message), e, false);
         }
+
         url = call.request().url().toString();
     }
 
@@ -56,10 +74,10 @@ public class CallException extends Exception {
         public static final String STATUS_MESSAGE = "status_message";
 
         @SerializedName(STATUS_CODE)
-        public  int statusCode;
+        public int statusCode;
 
         @SerializedName(STATUS_MESSAGE)
-        public  String statusMessage;
+        public String statusMessage;
 
         @Override
         public String toString() {

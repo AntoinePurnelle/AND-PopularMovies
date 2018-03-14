@@ -19,6 +19,7 @@ package net.ouftech.popularmovies;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -36,7 +37,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import net.ouftech.popularmovies.GridAdapter.ImageViewHolder;
-import net.ouftech.popularmovies.Model.Movie;
+import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.NetworkUtils;
 
@@ -77,15 +78,16 @@ public class GridAdapter extends RecyclerView.Adapter<ImageViewHolder> {
         this.viewHolderListener = new ViewHolderListenerImpl(gridFragment);
     }
 
+    @NonNull
     @Override
-    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.image_card, parent, false);
         return new ImageViewHolder(view, requestManager, viewHolderListener);
     }
 
     @Override
-    public void onBindViewHolder(ImageViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         holder.onBind(gridFragment.getMovies().get(position));
     }
 

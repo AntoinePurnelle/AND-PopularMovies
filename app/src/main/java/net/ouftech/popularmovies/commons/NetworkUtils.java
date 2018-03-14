@@ -21,18 +21,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import net.ouftech.popularmovies.Model.Movie;
-import net.ouftech.popularmovies.Model.Result;
+import net.ouftech.popularmovies.model.Movie;
+import net.ouftech.popularmovies.model.Result;
 import net.ouftech.popularmovies.R;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Scanner;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -96,7 +92,7 @@ public class NetworkUtils {
         HashMap<String, String> params = new HashMap<>();
 
         String apiKey = context.getString(R.string.movie_db_api_key);
-        String localLanguage = Locale.getDefault().getLanguage() + "a";
+        String localLanguage = Locale.getDefault().getLanguage();
         String imageLanguage = localLanguage + ",null";
 
         params.put(API_KEY_PARAM, apiKey);
@@ -150,28 +146,6 @@ public class NetworkUtils {
             Logger.e(getLotTag(), "Error while building URL", e);
         }
         return url;
-    }
-
-    public static String getResponseFromHttpUrl(@Nullable URL url) throws IOException {
-        if (url == null)
-            return null;
-
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        try {
-            InputStream in = urlConnection.getInputStream();
-
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");
-
-            boolean hasInput = scanner.hasNext();
-            if (hasInput) {
-                return scanner.next();
-            } else {
-                return null;
-            }
-        } finally {
-            urlConnection.disconnect();
-        }
     }
 
 }
