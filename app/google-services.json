@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1019641804481",
+    "firebase_url": "https://udacity-25d48.firebaseio.com",
+    "project_id": "udacity-25d48",
+    "storage_bucket": "udacity-25d48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019641804481:android:cd2b6183dcaeaebc",
+        "android_client_info": {
+          "package_name": "net.ouftech.popularmovies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1019641804481-rjn9bgo78dhg9c3o7tp6a5kme0vl33n0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPaNWsHYlUSQTOD8U40wnfYXr-naExKZA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
