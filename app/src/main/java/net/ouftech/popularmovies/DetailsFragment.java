@@ -46,6 +46,7 @@ import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.Logger;
 import net.ouftech.popularmovies.commons.NetworkUtils;
+import net.ouftech.popularmovies.model.VideosResult;
 
 import java.net.URL;
 import java.text.DateFormat;
@@ -138,6 +139,8 @@ public class DetailsFragment extends BaseFragment {
     @BindView(R.id.image)
     protected ImageView imageView;
 
+    private static final String movieLock = "movieLock";
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -155,6 +158,7 @@ public class DetailsFragment extends BaseFragment {
             imageView.setTransitionName(movie.id);
 
         loadMovie();
+        loadVideos();
         displayData();
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
@@ -230,7 +234,7 @@ public class DetailsFragment extends BaseFragment {
     }
 
     private void loadMovie() {
-        if (!movie.isFullyLoaded && getActivity() != null) {
+        if (!movie.hasDetailsLoaded && getActivity() != null) {
             setProgressBarVisibility(View.VISIBLE);
 
             final String id = movie.id;
@@ -254,12 +258,14 @@ public class DetailsFragment extends BaseFragment {
                         return;
                     }
 
-                    movie.countries = tempMovie.countries;
-                    movie.genres = tempMovie.genres;
-                    movie.runtime = tempMovie.runtime;
-                    movie.countries = tempMovie.countries;
-                    movie.tagline = tempMovie.tagline;
-                    movie.isFullyLoaded = true;
+                    synchronized (movieLock) {
+                        movie.countries = tempMovie.countries;
+                        movie.genres = tempMovie.genres;
+                        movie.runtime = tempMovie.runtime;
+                        movie.countries = tempMovie.countries;
+                        movie.tagline = tempMovie.tagline;
+                        movie.hasDetailsLoaded = true;
+                    }
                     displayData();
                     setProgressBarVisibility(View.GONE);
                 }
@@ -273,31 +279,72 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
+    private void loadVideos() {
+        if (!movie.hasVideosLoaded && getActivity() != null) {
+
+            final String id = movie.id;
+            NetworkUtils.getVideos(getActivity(), id, new Callback<VideosResult>() {
+                @Override
+                public void onResponse(@NonNull Call<VideosResult> call, @NonNull Response<VideosResult> response) {
+                    VideosResult videosResult = response.body();
+
+                    if (videosResult == null) {
+
+                        ResponseBody errorBody = response.errorBody();
+                        CallException callException = new CallException(response.code(), response.message(), errorBody, call);
+
+                        if (errorBody == null) {
+                            Logger.e(getLotTag(), String.format("Error while executing getVideos call for movie %s", id), callException);
+                        } else {
+                            Logger.e(getLotTag(), String.format("Error while executing getVideos call for movie %s. ErrorBody = %s", id, errorBody), callException);
+                        }
+
+                        setProgressBarVisibility(View.GONE);
+                        return;
+                    }
+
+                    synchronized (movieLock) {
+                        movie.videos = videosResult.videos;
+                        movie.hasVideosLoaded = true;
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<VideosResult> call, @NonNull Throwable t) {
+                    Logger.e(getLotTag(), String.format("Error while executing getVideos call for movie %s", id), t);
+                    setProgressBarVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
     private void displayData() {
-        if (detailToolbar != null)
-            detailToolbar.setTitle(movie.title);
-        if (ratingTv != null)
-            ratingTv.setText(String.valueOf(movie.voteAverage + "/10"));
-        if (overviewTv != null)
-            overviewTv.setText(movie.overview);
-        displayRatingStars(movie.voteAverage);
+        synchronized (movieLock) {
+            if (detailToolbar != null)
+                detailToolbar.setTitle(movie.title);
+            if (ratingTv != null)
+                ratingTv.setText(String.valueOf(movie.voteAverage + "/10"));
+            if (overviewTv != null)
+                overviewTv.setText(movie.overview);
+            displayRatingStars(movie.voteAverage);
 
-        displayValue(null, taglineTv, movie.tagline);
-        displayValue(dateLayout, dateTv, getLocaleDate(movie.releaseDate));
-        displayValue(runtimeLayout, runtimeTv, getDisplayRuntime());
-        displayValue(originalLanguageLayout, originalLanguageTv, movie.getDisplayLanguage());
-        if (!Locale.getDefault().getLanguage().equals(movie.originalLanguage))
-            displayValue(originalTitleLayout, originalTitleTv, movie.getOriginalTitleIfDifferent());
-        else
-            displayValue(originalTitleLayout, originalTitleTv, null);
+            displayValue(null, taglineTv, movie.tagline);
+            displayValue(dateLayout, dateTv, getLocaleDate(movie.releaseDate));
+            displayValue(runtimeLayout, runtimeTv, getDisplayRuntime());
+            displayValue(originalLanguageLayout, originalLanguageTv, movie.getDisplayLanguage());
+            if (!Locale.getDefault().getLanguage().equals(movie.originalLanguage))
+                displayValue(originalTitleLayout, originalTitleTv, movie.getOriginalTitleIfDifferent());
+            else
+                displayValue(originalTitleLayout, originalTitleTv, null);
 
-        if (countriesLabelTv != null && CollectionUtils.getSize(movie.countries) > 1)
-            countriesLabelTv.setText(getString(R.string.countries));
-        displayValue(countriesLayout, countriesTv, movie.getCountriesString());
+            if (countriesLabelTv != null && CollectionUtils.getSize(movie.countries) > 1)
+                countriesLabelTv.setText(getString(R.string.countries));
+            displayValue(countriesLayout, countriesTv, movie.getCountriesString());
 
-        if (genresLabelTv != null && CollectionUtils.getSize(movie.genres) == 1)
-            genresLabelTv.setText(getString(R.string.genre));
-        displayValue(genresLayout, genresTv, movie.getGenresString());
+            if (genresLabelTv != null && CollectionUtils.getSize(movie.genres) == 1)
+                genresLabelTv.setText(getString(R.string.genre));
+            displayValue(genresLayout, genresTv, movie.getGenresString());
+        }
     }
 
     private void displayValue(@Nullable View layout, @Nullable TextView valueTv, @Nullable String value) {
@@ -381,6 +428,7 @@ public class DetailsFragment extends BaseFragment {
         unbinder.unbind();
     }
 
+    synchronized
     private void setProgressBarVisibility(final int visibility) {
         if (isRunning() && progressBar != null)
             getBaseActivity().runOnUiThread(new Runnable() {

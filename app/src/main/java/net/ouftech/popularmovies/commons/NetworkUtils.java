@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.model.Result;
 import net.ouftech.popularmovies.R;
+import net.ouftech.popularmovies.model.VideosResult;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,6 +56,8 @@ public class NetworkUtils {
         Call<Result> getMoviesList(@Path("path") String path, @QueryMap HashMap<String, String> parameters);
         @GET("3/movie/{id}")
         Call<Movie> getMovie(@Path("id") String path, @QueryMap HashMap<String, String> parameters);
+        @GET("3/movie/{id}/videos")
+        Call<VideosResult> getVideos(@Path("id") String path, @QueryMap HashMap<String, String> parameters);
     }
 
     private static final String TMDB_BASE_URL =
@@ -63,6 +66,8 @@ public class NetworkUtils {
     public static final String TMDB_TOP_RATED_PATH = "top_rated";
 
     private static final String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
+    private static final String YOUTUBE_BASE_URL = "https://img.youtube.com/vi/%s/default.jpg";
+    private static final String YOUTUBE_IMAGE_BASE_URL = "https://www.youtube.com/watch?v=";
 
     private static final String API_KEY_PARAM = "api_key";
     private static final String LANGUAGE_PARAM = "language";
@@ -119,6 +124,16 @@ public class NetworkUtils {
         }
 
         Call<Result> call = getTMDBClient().getMoviesList(path, getParams(context));
+        call.enqueue(callback);
+    }
+
+    public static void getVideos(@Nullable Context context, @NonNull final String id, @NonNull Callback<VideosResult> callback) {
+        if (context == null) {
+            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException("Context is null"), false);
+            return;
+        }
+
+        Call<VideosResult> call = getTMDBClient().getVideos(id, getParams(context));
         call.enqueue(callback);
     }
 

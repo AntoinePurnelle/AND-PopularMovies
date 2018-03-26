@@ -50,7 +50,8 @@ public class Movie implements Parcelable {
     public static final String GENRES_KEY = "genres";
     public static final String RUNTIME_KEY = "runtime";
 
-    public boolean isFullyLoaded = false;
+    public boolean hasDetailsLoaded = false;
+    public boolean hasVideosLoaded = false;
 
     @SerializedName(ID_KEY)
     public String id;
@@ -93,6 +94,8 @@ public class Movie implements Parcelable {
 
     @SerializedName(GENRES_KEY)
     public ArrayList<Genre> genres;
+
+    public ArrayList<Video> videos;
 
     @Nullable
     public String getCountriesString() {
@@ -138,7 +141,7 @@ public class Movie implements Parcelable {
     }
 
     protected Movie(Parcel in) {
-        isFullyLoaded = in.readByte() != 0x00;
+        hasDetailsLoaded = in.readByte() != 0x00;
         id = in.readString();
         title = in.readString();
         posterPath = in.readString();
@@ -163,6 +166,12 @@ public class Movie implements Parcelable {
         } else {
             genres = null;
         }
+        if (in.readByte() == 0x01) {
+            videos = new ArrayList<>();
+            in.readList(videos, Video.class.getClassLoader());
+        } else {
+            videos = null;
+        }
     }
 
     @Override
@@ -172,8 +181,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (isFullyLoaded ? 0x01 : 0x00));
-        dest.writeString(id);
+        dest.writeByte((byte) (hasDetailsLoaded ? 0x01 : 0x00));
         dest.writeString(id);
         dest.writeString(title);
         dest.writeString(posterPath);
@@ -197,6 +205,12 @@ public class Movie implements Parcelable {
         } else {
             dest.writeByte((byte) (0x01));
             dest.writeList(genres);
+        }
+        if (videos == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(videos);
         }
     }
 
