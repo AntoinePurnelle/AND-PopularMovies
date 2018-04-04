@@ -18,6 +18,7 @@ package net.ouftech.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -138,6 +139,14 @@ public class Movie implements Parcelable {
             return null;
 
         return originalTitle;
+    }
+
+    public void setVideos(@NonNull ArrayList<Video> videos) {
+        this.videos = videos;
+        for (Video video : videos) {
+            if (!Video.SITE_YOUTUBE.equals(video.site))
+                this.videos.remove(video);
+        }
     }
 
     protected Movie(Parcel in) {

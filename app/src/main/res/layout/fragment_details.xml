@@ -62,6 +62,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusableInTouchMode="true"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -284,6 +285,17 @@
                     android:textSize="@dimen/default_text_size"
                     tools:text="A burger-loving hit man, his philosophical partner, a drug-addled gangster's moll and a washed-up boxer converge in this sprawling, comedic crime caper. Their adventures unfurl in three stories that ingeniously trip back and forth in time." />
 
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/videos_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    android:focusable="false"
+                    android:nestedScrollingEnabled="false"
+                    android:orientation="horizontal"
+                    android:scrollbars="horizontal"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    tools:listitem="@layout/video_item" />
 
             </LinearLayout>
 

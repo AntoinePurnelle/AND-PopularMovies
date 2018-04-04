@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package net.ouftech.popularmovies;
+package net.ouftech.popularmovies.details;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -40,18 +41,22 @@ import com.bumptech.glide.request.target.Target;
 import com.hannesdorfmann.fragmentargs.annotation.Arg;
 import com.hannesdorfmann.fragmentargs.annotation.FragmentWithArgs;
 
+import net.ouftech.popularmovies.MainActivity;
+import net.ouftech.popularmovies.R;
 import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.commons.BaseFragment;
 import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.Logger;
 import net.ouftech.popularmovies.commons.NetworkUtils;
+import net.ouftech.popularmovies.model.Video;
 import net.ouftech.popularmovies.model.VideosResult;
 
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -119,6 +124,10 @@ public class DetailsFragment extends BaseFragment {
     LinearLayout genresLayout;
     @BindView(R.id.runtime_layout)
     LinearLayout runtimeLayout;
+    @BindView(R.id.videos_rv)
+    RecyclerView videosRV;
+    @BindView(R.id.image)
+    protected ImageView imageView;
 
     Unbinder unbinder;
 
@@ -136,8 +145,7 @@ public class DetailsFragment extends BaseFragment {
     @Arg
     int position;
     private Movie movie;
-    @BindView(R.id.image)
-    protected ImageView imageView;
+    private VideosAdapter videosAdapter;
 
     private static final String movieLock = "movieLock";
 
@@ -157,9 +165,14 @@ public class DetailsFragment extends BaseFragment {
         if (movie != null)
             imageView.setTransitionName(movie.id);
 
+        videosAdapter = new VideosAdapter();
+        videosRV.setAdapter(videosAdapter);
+
         loadMovie();
         loadVideos();
         displayData();
+        if (movie.hasVideosLoaded)
+            displayVideos(movie.videos);
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         URL url = getContext() == null ? null : NetworkUtils.getSmallImageURL(getContext(), movie.posterPath);
@@ -300,21 +313,33 @@ public class DetailsFragment extends BaseFragment {
                         }
 
                         setProgressBarVisibility(View.GONE);
+                        videosRV.setVisibility(View.GONE);
                         return;
                     }
 
-                    synchronized (movieLock) {
-                        movie.videos = videosResult.videos;
-                        movie.hasVideosLoaded = true;
-                    }
+                    movie.hasVideosLoaded = true;
+                    displayVideos(videosResult.videos);
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<VideosResult> call, @NonNull Throwable t) {
                     Logger.e(getLotTag(), String.format("Error while executing getVideos call for movie %s", id), t);
                     setProgressBarVisibility(View.GONE);
+                    videosRV.setVisibility(View.GONE);
                 }
             });
+        }
+    }
+
+    private void displayVideos(@Nullable ArrayList<Video> videos) {
+        if (videos == null) {
+            videosRV.setVisibility(View.GONE);
+            return;
+        }
+
+        synchronized (movieLock) {
+            movie.setVideos(videos);
+            videosAdapter.swapData(videos);
         }
     }
 

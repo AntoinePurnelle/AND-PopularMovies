@@ -21,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import net.ouftech.popularmovies.commons.CollectionUtils;
+import net.ouftech.popularmovies.details.DetailsFragmentBuilder;
 
 
 public class ImagePagerAdapter extends FragmentStatePagerAdapter {
