@@ -23,4 +23,6 @@
   <dimen name="small_text_size">16sp</dimen>
   <dimen name="card_view_height">374dp</dimen>
   <dimen name="card_view_width">250dp</dimen>
+  <dimen name="video_item_width">280dp</dimen>
+  <dimen name="video_item_height">210dp</dimen>
 </resources>

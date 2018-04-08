@@ -17,6 +17,8 @@
 package net.ouftech.popularmovies.commons;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -66,8 +68,8 @@ public class NetworkUtils {
     public static final String TMDB_TOP_RATED_PATH = "top_rated";
 
     private static final String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
-    private static final String YOUTUBE_BASE_URL = "https://img.youtube.com/vi/%s/default.jpg";
-    private static final String YOUTUBE_IMAGE_BASE_URL = "https://www.youtube.com/watch?v=";
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
+    private static final String YOUTUBE_IMAGE_BASE_URL = "https://img.youtube.com/vi/%s/maxresdefault.jpg";
 
     private static final String API_KEY_PARAM = "api_key";
     private static final String LANGUAGE_PARAM = "language";
@@ -80,7 +82,7 @@ public class NetworkUtils {
             OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
             Retrofit.Builder builder = new Retrofit.Builder()
-                    .baseUrl("https://api.themoviedb.org/")
+                    .baseUrl(TMDB_BASE_URL)
                     .addConverterFactory(
                             GsonConverterFactory.create()
                     );
@@ -135,6 +137,27 @@ public class NetworkUtils {
 
         Call<VideosResult> call = getTMDBClient().getVideos(id, getParams(context));
         call.enqueue(callback);
+    }
+
+    public static void openYoutubeVideo(Context context, String videoId) {
+        if (context == null)
+            return;
+
+        Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse(YOUTUBE_BASE_URL + videoId));
+
+        context.startActivity(webIntent);
+    }
+
+    public static URL getYoutubeThumbnailURL(String videoId) {
+
+        URL url = null;
+        try {
+            url = new URL(String.format(YOUTUBE_IMAGE_BASE_URL, videoId));
+        } catch (MalformedURLException e) {
+            Logger.e(getLotTag(), "Error while building URL", e);
+        }
+        return url;
     }
 
     @Nullable
