@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.model.Result;
 import net.ouftech.popularmovies.R;
+import net.ouftech.popularmovies.model.ReviewsResult;
 import net.ouftech.popularmovies.model.VideosResult;
 
 import java.net.MalformedURLException;
@@ -60,6 +61,8 @@ public class NetworkUtils {
         Call<Movie> getMovie(@Path("id") String path, @QueryMap HashMap<String, String> parameters);
         @GET("3/movie/{id}/videos")
         Call<VideosResult> getVideos(@Path("id") String path, @QueryMap HashMap<String, String> parameters);
+        @GET("3/movie/{id}/reviews")
+        Call<ReviewsResult> getReviews(@Path("id") String path, @QueryMap HashMap<String, String> parameters);
     }
 
     private static final String TMDB_BASE_URL =
@@ -136,6 +139,16 @@ public class NetworkUtils {
         }
 
         Call<VideosResult> call = getTMDBClient().getVideos(id, getParams(context));
+        call.enqueue(callback);
+    }
+
+    public static void getReviews(@Nullable Context context, @NonNull final String id, @NonNull Callback<ReviewsResult> callback) {
+        if (context == null) {
+            Logger.w(getLotTag(), "Cannot build URL", new NullPointerException("Context is null"), false);
+            return;
+        }
+
+        Call<ReviewsResult> call = getTMDBClient().getReviews(id, getParams(context));
         call.enqueue(callback);
     }
 

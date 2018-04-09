@@ -27,6 +27,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Video implements Parcelable {
 
+    public static final String ID_KEY = "id";
     public static final String VIDEO_KEY = "key";
     public static final String NAME_KEY = "name";
     public static final String SITE_KEY = "site";
@@ -38,6 +39,9 @@ public class Video implements Parcelable {
     public static final String TYPE_CLIP = "Clip";
 
     public static final String SITE_YOUTUBE = "YouTube";
+
+    @SerializedName(ID_KEY)
+    public String id;
 
     @SerializedName(VIDEO_KEY)
     public String key;
@@ -53,6 +57,7 @@ public class Video implements Parcelable {
 
 
     protected Video(Parcel in) {
+        id = in.readString();
         key = in.readString();
         name = in.readString();
         site = in.readString();
@@ -66,6 +71,7 @@ public class Video implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(key);
         dest.writeString(name);
         dest.writeString(site);

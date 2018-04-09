@@ -51,8 +51,9 @@ public class Movie implements Parcelable {
     public static final String GENRES_KEY = "genres";
     public static final String RUNTIME_KEY = "runtime";
 
-    public boolean hasDetailsLoaded = false;
-    public boolean hasVideosLoaded = false;
+    public boolean hasDetailsLoaded;
+    public boolean hasVideosLoaded;
+    public boolean hasReviewsLoaded;
 
     @SerializedName(ID_KEY)
     public String id;
@@ -97,6 +98,12 @@ public class Movie implements Parcelable {
     public ArrayList<Genre> genres;
 
     public ArrayList<Video> videos;
+
+    public ArrayList<Review> reviews;
+
+    public int reviewsPagesCount = -1;
+
+    public int reviewsPagesLoadedCount = -1;
 
     @Nullable
     public String getCountriesString() {
@@ -149,8 +156,22 @@ public class Movie implements Parcelable {
         }
     }
 
+    public void addReviews(ArrayList<Review> reviews) {
+        if (this.reviews == null)
+            this.reviews = new ArrayList<>();
+
+        this.reviews.addAll(reviews);
+        this.hasReviewsLoaded = true;
+    }
+
+    public boolean shouldLoadReviewPage(int page) {
+        return !hasReviewsLoaded || (page > reviewsPagesLoadedCount && reviewsPagesCount != -1 && page < reviewsPagesCount);
+    }
+
     protected Movie(Parcel in) {
         hasDetailsLoaded = in.readByte() != 0x00;
+        hasVideosLoaded = in.readByte() != 0x00;
+        hasReviewsLoaded = in.readByte() != 0x00;
         id = in.readString();
         title = in.readString();
         posterPath = in.readString();
@@ -181,6 +202,14 @@ public class Movie implements Parcelable {
         } else {
             videos = null;
         }
+        if (in.readByte() == 0x01) {
+            reviews = new ArrayList<>();
+            in.readList(reviews, Review.class.getClassLoader());
+        } else {
+            reviews = null;
+        }
+        reviewsPagesCount = in.readInt();
+        reviewsPagesLoadedCount = in.readInt();
     }
 
     @Override
@@ -191,6 +220,8 @@ public class Movie implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte((byte) (hasDetailsLoaded ? 0x01 : 0x00));
+        dest.writeByte((byte) (hasVideosLoaded ? 0x01 : 0x00));
+        dest.writeByte((byte) (hasReviewsLoaded ? 0x01 : 0x00));
         dest.writeString(id);
         dest.writeString(title);
         dest.writeString(posterPath);
@@ -221,6 +252,14 @@ public class Movie implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeList(videos);
         }
+        if (reviews == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(reviews);
+        }
+        dest.writeInt(reviewsPagesCount);
+        dest.writeInt(reviewsPagesLoadedCount);
     }
 
     @SuppressWarnings("unused")

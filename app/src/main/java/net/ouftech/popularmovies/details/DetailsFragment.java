@@ -49,6 +49,7 @@ import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.Logger;
 import net.ouftech.popularmovies.commons.NetworkUtils;
+import net.ouftech.popularmovies.model.ReviewsResult;
 import net.ouftech.popularmovies.model.Video;
 import net.ouftech.popularmovies.model.VideosResult;
 
@@ -170,6 +171,7 @@ public class DetailsFragment extends BaseFragment {
 
         loadMovie();
         loadVideos();
+        loadReviews(0);
         displayData();
         if (movie.hasVideosLoaded)
             displayVideos(movie.videos);
@@ -326,6 +328,44 @@ public class DetailsFragment extends BaseFragment {
                     Logger.e(getLotTag(), String.format("Error while executing getVideos call for movie %s", id), t);
                     setProgressBarVisibility(View.GONE);
                     videosRV.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private void loadReviews(final int page) {
+        if (movie.shouldLoadReviewPage(page) && getActivity() != null) {
+
+            final String id = movie.id;
+            NetworkUtils.getReviews(getActivity(), id, new Callback<ReviewsResult>() {
+                @Override
+                public void onResponse(@NonNull Call<ReviewsResult> call, @NonNull Response<ReviewsResult> response) {
+                    ReviewsResult reviewsResult = response.body();
+
+                    if (reviewsResult == null) {
+
+                        ResponseBody errorBody = response.errorBody();
+                        CallException callException = new CallException(response.code(), response.message(), errorBody, call);
+
+                        if (errorBody == null) {
+                            Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s", id, page), callException);
+                        } else {
+                            Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s. ErrorBody = %s", id, page, errorBody), callException);
+                        }
+
+                        return;
+                    }
+
+                    movie.addReviews(reviewsResult.reviews);
+                    movie.reviewsPagesCount = reviewsResult.totalPages;
+                    movie.reviewsPagesLoadedCount = page;
+                    loadReviews(page+1);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ReviewsResult> call, @NonNull Throwable t) {
+                    Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s", id, page), t);
+                    setProgressBarVisibility(View.GONE);
                 }
             });
         }
