@@ -131,6 +131,8 @@ public class DetailsFragment extends BaseFragment {
     RecyclerView videosRV;
     @BindView(R.id.image)
     protected ImageView imageView;
+    @BindView(R.id.open_reviews_iv)
+    protected AppCompatImageView reviewsButton;
 
     Unbinder unbinder;
 
@@ -175,6 +177,7 @@ public class DetailsFragment extends BaseFragment {
         loadVideos();
         loadReviews(0);
         displayData();
+        initReviewsButton();
         if (movie.hasVideosLoaded)
             displayVideos(movie.videos);
 
@@ -369,6 +372,7 @@ public class DetailsFragment extends BaseFragment {
                     movie.addReviews(reviewsResult.reviews);
                     movie.reviewsPagesCount = reviewsResult.totalPages;
                     movie.reviewsPagesLoadedCount = page;
+                    initReviewsButton();
                 }
 
                 @Override
@@ -521,5 +525,9 @@ public class DetailsFragment extends BaseFragment {
                     progressBar.setVisibility(visibility);
                 }
             });
+    }
+
+    public void initReviewsButton() {
+        reviewsButton.setVisibility(CollectionUtils.isEmpty(movie.reviews) ? View.GONE : View.VISIBLE);
     }
 }
