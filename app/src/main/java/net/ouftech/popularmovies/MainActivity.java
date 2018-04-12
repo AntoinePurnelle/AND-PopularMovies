@@ -64,27 +64,34 @@ public class MainActivity extends BaseActivity {
     protected ProgressBar loadingIndicator;
     @BindView(R.id.tv_error_message_display)
     protected TextView errorMessageDisplay;
+    @BindView(R.id.tv_empty_message_display)
+    protected TextView emptyMessageDisplay;
     @BindView(R.id.fragment_container)
     protected View gridContainer;
     @BindView(R.id.navigation)
     protected BottomNavigationView bottomNavigationView;
 
+    private static final String KEY_CURRENT_FAVORITES_POSITION = "currentFavoritesPosition";
     private static final String KEY_CURRENT_POPULAR_POSITION = "currentPopularPosition";
     private static final String KEY_CURRENT_TOP_RATED_POSITION = "currentTopRatedPosition";
     private static final String KEY_SHOWING_DETAILS = "isShowingDetails";
+    private static final String KEY_FAVORITES_MOVIES = "favoritesMovies";
     private static final String KEY_POPULAR_MOVIES = "popularMovies";
     private static final String KEY_TOP_RATED_MOVIES = "topRatedMovies";
     private static final String KEY_SORT_CRITERIA = "sortCriteria";
     private static final int MOVIES_LOADER = 42;
-    private static final int SORT_POPULAR = 0;
-    private static final int SORT_TOP_RATED = 1;
+    private static final int SORT_FAVORITES = 0;
+    private static final int SORT_POPULAR = 1;
+    private static final int SORT_TOP_RATED = 2;
 
+    public static int currentFavoritesPosition = 0;
     public static int currentPopularPosition = 0;
     public static int currentTopRatedPosition = 0;
     private GridFragment gridFragment;
     private boolean isShowingDetails = false;
-    private static int sortCriteria = 0;
+    private static int sortCriteria = SORT_POPULAR;
 
+    protected ArrayList<Movie> favoriteMovies = new ArrayList<>();
     protected ArrayList<Movie> popularMovies = new ArrayList<>();
     protected ArrayList<Movie> topRatedMovies = new ArrayList<>();
 
@@ -98,15 +105,22 @@ public class MainActivity extends BaseActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
+                    case R.id.navigation_favorite:
+                        gridFragment.swapData(favoriteMovies);
+                        sortCriteria = SORT_FAVORITES;
+                        emptyMessageDisplay.setVisibility(View.VISIBLE);
+                        return true;
                     case R.id.navigation_popular:
                         gridFragment.swapData(popularMovies);
                         sortCriteria = SORT_POPULAR;
                         loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
+                        emptyMessageDisplay.setVisibility(View.GONE);
                         return true;
                     case R.id.navigation_top_rated:
                         gridFragment.swapData(topRatedMovies);
                         sortCriteria = SORT_TOP_RATED;
                         loadMovies(topRatedMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
+                        emptyMessageDisplay.setVisibility(View.GONE);
                         return true;
                 }
                 return false;
@@ -114,6 +128,7 @@ public class MainActivity extends BaseActivity {
         });
 
         if (savedInstanceState != null) {
+            currentFavoritesPosition = savedInstanceState.getInt(KEY_CURRENT_POPULAR_POSITION, 0);
             currentPopularPosition = savedInstanceState.getInt(KEY_CURRENT_POPULAR_POSITION, 0);
             currentTopRatedPosition = savedInstanceState.getInt(KEY_CURRENT_TOP_RATED_POSITION, 0);
             isShowingDetails = savedInstanceState.getBoolean(KEY_SHOWING_DETAILS);
@@ -121,11 +136,24 @@ public class MainActivity extends BaseActivity {
             topRatedMovies = savedInstanceState.getParcelableArrayList(KEY_TOP_RATED_MOVIES);
             sortCriteria = savedInstanceState.getInt(KEY_SORT_CRITERIA, SORT_POPULAR);
             gridFragment = (GridFragment) fragmentManager.findFragmentByTag(GridFragment.class.getSimpleName());
-            if (sortCriteria == SORT_TOP_RATED) {
-                bottomNavigationView.setSelectedItemId(R.id.navigation_top_rated);
-                loadMovies(topRatedMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
-            } else {
-                loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
+
+
+            switch (sortCriteria) {
+                case SORT_POPULAR:
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_popular);
+                    loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
+                    emptyMessageDisplay.setVisibility(View.GONE);
+                    break;
+                case SORT_TOP_RATED:
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_top_rated);
+                    loadMovies(topRatedMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
+                    emptyMessageDisplay.setVisibility(View.GONE);
+                    break;
+                case SORT_FAVORITES:
+                default:
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_favorite);
+                    loadMovies(favoriteMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
+                    emptyMessageDisplay.setVisibility(View.VISIBLE);
             }
 
             if (isShowingDetails)
@@ -135,20 +163,28 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
-
         gridFragment = new GridFragment();
         fragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, gridFragment, GridFragment.class.getSimpleName())
                 .commit();
+
+        bottomNavigationView.setSelectedItemId(R.id.navigation_popular);
     }
 
     private void swapData() {
-        if (sortCriteria == SORT_POPULAR)
-            gridFragment.swapData(popularMovies);
-        else
-            gridFragment.swapData(topRatedMovies);
+
+        switch (sortCriteria) {
+            case SORT_POPULAR:
+                gridFragment.swapData(popularMovies);
+                break;
+            case SORT_TOP_RATED:
+                gridFragment.swapData(topRatedMovies);
+                break;
+            case SORT_FAVORITES:
+            default:
+                gridFragment.swapData(favoriteMovies);
+        }
     }
 
     private void loadMovies(@NonNull final ArrayList<Movie> movies, @NonNull String path) {
@@ -206,6 +242,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putInt(KEY_CURRENT_FAVORITES_POSITION, currentFavoritesPosition);
         outState.putInt(KEY_CURRENT_POPULAR_POSITION, currentPopularPosition);
         outState.putInt(KEY_CURRENT_TOP_RATED_POSITION, currentTopRatedPosition);
         outState.putInt(KEY_SORT_CRITERIA, sortCriteria);
@@ -215,10 +252,16 @@ public class MainActivity extends BaseActivity {
     }
 
     public ArrayList<Movie> getMovies() {
-        if (sortCriteria == SORT_POPULAR)
-            return popularMovies;
-        else
-            return topRatedMovies;
+
+        switch (sortCriteria) {
+            case SORT_POPULAR:
+                return popularMovies;
+            case SORT_TOP_RATED:
+                return topRatedMovies;
+            case SORT_FAVORITES:
+            default:
+                return favoriteMovies;
+        }
     }
 
     public void onItemClicked(int currentPosition) {
@@ -239,18 +282,30 @@ public class MainActivity extends BaseActivity {
     }
 
     public static int getCurrentPosition() {
-        if (sortCriteria == SORT_POPULAR)
-            return MainActivity.currentPopularPosition;
-        else if (sortCriteria == SORT_TOP_RATED)
-            return MainActivity.currentTopRatedPosition;
-        return 0;
+        switch (sortCriteria) {
+            case SORT_POPULAR:
+                return MainActivity.currentPopularPosition;
+            case SORT_TOP_RATED:
+                return MainActivity.currentTopRatedPosition;
+            case SORT_FAVORITES:
+                return MainActivity.currentFavoritesPosition;
+            default:
+                return 0;
+        }
     }
 
     public void setCurrentPosition(int currentPosition) {
-        if (sortCriteria == SORT_POPULAR)
-            MainActivity.currentPopularPosition = currentPosition;
-        else if (sortCriteria == SORT_TOP_RATED)
-            MainActivity.currentTopRatedPosition = currentPosition;
+
+        switch (sortCriteria) {
+            case SORT_POPULAR:
+                MainActivity.currentPopularPosition = currentPosition;
+                break;
+            case SORT_TOP_RATED:
+                MainActivity.currentTopRatedPosition = currentPosition;
+                break;
+            case SORT_FAVORITES:
+                MainActivity.currentFavoritesPosition = currentPosition;
+        }
     }
 
     @Override
