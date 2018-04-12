@@ -75,6 +75,7 @@
             android:visibility="gone" />
 
         <android.support.v4.widget.NestedScrollView
+            android:id="@+id/detail_scrollview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
@@ -84,7 +85,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="@dimen/default_padding">
+                android:padding="@dimen/default_padding"
+                android:paddingTop="@dimen/large_padding">
 
                 <TextView
                     android:id="@+id/tagline_tv"
@@ -147,7 +149,7 @@
                         android:id="@+id/open_reviews_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_open_in_new_accent_24dp"/>
+                        android:src="@drawable/ic_open_in_new_accent_24dp" />
 
                 </LinearLayout>
 
@@ -308,5 +310,15 @@
 
         </android.support.v4.widget.NestedScrollView>
     </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="detail_favorite_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@color/colorAccent"
+        android:src="@drawable/ic_favorite_border_white_24dp"
+        app:layout_anchor="@id/appBarLayout"
+        app:layout_anchorGravity="right|bottom" />
 
 </android.support.design.widget.CoordinatorLayout>
