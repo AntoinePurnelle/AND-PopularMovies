@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,8 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".details.ReviewsActivity"
+            android:parentActivityName=".MainActivity"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="0fb56fe06f33133715ba31d96efb67c79c12aec7" />
+
     </application>
 </manifest>

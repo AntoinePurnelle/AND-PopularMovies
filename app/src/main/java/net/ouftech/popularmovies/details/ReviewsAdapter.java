@@ -25,49 +25,45 @@ import android.view.ViewGroup;
 import net.ouftech.popularmovies.R;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.Logger;
-import net.ouftech.popularmovies.model.Video;
+import net.ouftech.popularmovies.model.Review;
 
 import java.util.List;
 
-public class VideosAdapter extends RecyclerView.Adapter<VideoViewHolder> {
+public class ReviewsAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
 
     @NonNull
     protected String getLotTag() {
-        return "VideosAdapter";
+        return "ReviewsAdapter";
     }
 
-    private List<Video> videos;
-
-    public VideosAdapter() {
-    }
-
-    public void swapData(List<Video> videos) {
-        this.videos = videos;
-        notifyDataSetChanged();
-    }
+    private List<Review> reviews;
 
     @NonNull
     @Override
-    public VideoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.video_item, parent, false);
-        return new VideoViewHolder(view);
+                .inflate(R.layout.review_item, parent, false);
+        return new ReviewViewHolder(view);
+    }
+
+    public void swapData(List<Review> reviews) {
+        this.reviews = reviews;
+        notifyDataSetChanged();
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
-        int videosCount = CollectionUtils.getSize(videos);
-        if (videos == null || videosCount == 0 || position < 0 || position >= videosCount) {
-            Logger.e(getLotTag(), new ArrayIndexOutOfBoundsException(String.format("Cannot bind item at position %s. Videos count is %s", position, videosCount)));
+    public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
+        int reviewsCount = CollectionUtils.getSize(reviews);
+        if (reviews == null || reviewsCount == 0 || position < 0 || position >= reviewsCount) {
+            Logger.e(getLotTag(), new ArrayIndexOutOfBoundsException(String.format("Cannot bind item at position %s. Reviews count is %s", position, reviewsCount)));
             return;
         }
 
-        holder.bind(videos.get(position));
+        holder.bind(reviews.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return CollectionUtils.getSize(videos);
+        return CollectionUtils.getSize(reviews);
     }
-
 }

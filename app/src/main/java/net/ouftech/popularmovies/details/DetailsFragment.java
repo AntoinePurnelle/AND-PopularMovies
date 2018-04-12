@@ -17,6 +17,7 @@
 
 package net.ouftech.popularmovies.details;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -63,6 +64,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -245,6 +247,14 @@ public class DetailsFragment extends BaseFragment {
                 getParentFragment().startPostponedEnterTransition();
         }
 
+        detailToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        detailToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed(); // Implemented by activity
+            }
+        });
+
         return view;
     }
 
@@ -359,7 +369,6 @@ public class DetailsFragment extends BaseFragment {
                     movie.addReviews(reviewsResult.reviews);
                     movie.reviewsPagesCount = reviewsResult.totalPages;
                     movie.reviewsPagesLoadedCount = page;
-                    loadReviews(page+1);
                 }
 
                 @Override
@@ -485,6 +494,16 @@ public class DetailsFragment extends BaseFragment {
             star.setImageResource(R.drawable.ic_star_24dp);
         else
             star.setImageResource(R.drawable.ic_star_half_24dp);
+    }
+
+    @OnClick(R.id.open_reviews_iv)
+    protected void onOpenReviewsClick() {
+        if (getActivity() == null)
+            return;
+
+        Intent reviewsIntent = new Intent(getActivity(), ReviewsActivity.class);
+        reviewsIntent.putExtra(ReviewsActivity.MOVIE_ARG_KEY, movie);
+        getActivity().startActivity(reviewsIntent);
     }
 
     @Override

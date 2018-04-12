@@ -143,6 +143,12 @@
                         android:textSize="@dimen/subtitle_text_size"
                         tools:text="3.5/5" />
 
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/open_reviews_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_open_in_new_accent_24dp"/>
+
                 </LinearLayout>
 
                 <LinearLayout
