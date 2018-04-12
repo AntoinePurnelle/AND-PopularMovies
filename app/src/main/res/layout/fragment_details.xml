@@ -107,30 +107,35 @@
                         android:id="@+id/ic_star_1_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_star_24dp" />
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/ic_star_2_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_star_24dp" />
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/ic_star_3_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_star_24dp" />
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/ic_star_4_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_star_half_24dp" />
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/ic_star_5_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_star_border_24dp" />
 
                     <TextView
@@ -149,6 +154,7 @@
                         android:id="@+id/open_reviews_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_open_in_new_accent_24dp" />
 
                 </LinearLayout>
