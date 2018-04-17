@@ -54,9 +54,11 @@ public class Movie implements Parcelable {
     public static final String GENRES_KEY = "genres";
     public static final String RUNTIME_KEY = "runtime";
 
-    public boolean hasDetailsLoaded;
+    public boolean hasDetailsLoadedFromNetwork;
     public boolean hasVideosLoaded;
     public boolean hasReviewsLoaded;
+    public boolean isFavorite;
+    public boolean hasDetailsLoadedFromDB;
 
     @SerializedName(ID_KEY)
     public String id;
@@ -170,7 +172,7 @@ public class Movie implements Parcelable {
     public boolean shouldLoadReviewPage(int page) {
         return !hasReviewsLoaded || (page > reviewsPagesLoadedCount && reviewsPagesCount != -1 && page < reviewsPagesCount);
     }
-    
+
     public ContentValues toContentValues() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MovieContract.MovieEntry.COLUMN_ID, id);
@@ -194,9 +196,11 @@ public class Movie implements Parcelable {
     }
 
     protected Movie(Parcel in) {
-        hasDetailsLoaded = in.readByte() != 0x00;
+        hasDetailsLoadedFromNetwork = in.readByte() != 0x00;
         hasVideosLoaded = in.readByte() != 0x00;
         hasReviewsLoaded = in.readByte() != 0x00;
+        isFavorite = in.readByte() != 0x00;
+        hasDetailsLoadedFromDB = in.readByte() != 0x00;
         id = in.readString();
         title = in.readString();
         posterPath = in.readString();
@@ -244,9 +248,11 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (hasDetailsLoaded ? 0x01 : 0x00));
+        dest.writeByte((byte) (hasDetailsLoadedFromNetwork ? 0x01 : 0x00));
         dest.writeByte((byte) (hasVideosLoaded ? 0x01 : 0x00));
         dest.writeByte((byte) (hasReviewsLoaded ? 0x01 : 0x00));
+        dest.writeByte((byte) (isFavorite ? 0x01 : 0x00));
+        dest.writeByte((byte) (hasDetailsLoadedFromDB ? 0x01 : 0x00));
         dest.writeString(id);
         dest.writeString(title);
         dest.writeString(posterPath);

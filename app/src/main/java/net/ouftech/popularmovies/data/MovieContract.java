@@ -52,5 +52,11 @@ public class MovieContract {
         public static final String COLUMN_VIDEOS = "videos";
         public static final String COLUMN_REVIEWS = "reviews";
 
+        public static Uri buildMovieUriWithId(String id) {
+            return CONTENT_URI.buildUpon()
+                    .appendPath(id)
+                    .build();
+        }
+
     }
 }
