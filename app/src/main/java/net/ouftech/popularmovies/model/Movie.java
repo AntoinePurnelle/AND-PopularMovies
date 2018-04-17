@@ -16,15 +16,18 @@
 
 package net.ouftech.popularmovies.model;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import net.ouftech.popularmovies.commons.CollectionUtils;
+import net.ouftech.popularmovies.data.MovieContract;
 
 
 import java.util.ArrayList;
@@ -166,6 +169,28 @@ public class Movie implements Parcelable {
 
     public boolean shouldLoadReviewPage(int page) {
         return !hasReviewsLoaded || (page > reviewsPagesLoadedCount && reviewsPagesCount != -1 && page < reviewsPagesCount);
+    }
+    
+    public ContentValues toContentValues() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MovieContract.MovieEntry.COLUMN_ID, id);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, posterPath);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, overview);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, voteAverage);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, voteCount);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE, originalLanguage);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, originalTitle);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_PATH, backdropPath);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_TAGLINE, tagline);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_PRODUCTION_COUNTRIES, new Gson().toJson(countries));
+        contentValues.put(MovieContract.MovieEntry.COLUMN_GENRES, new Gson().toJson(genres));
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, runtime);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_VIDEOS, new Gson().toJson(videos));
+        contentValues.put(MovieContract.MovieEntry.COLUMN_REVIEWS, new Gson().toJson(reviews));
+
+        return contentValues;
     }
 
     protected Movie(Parcel in) {

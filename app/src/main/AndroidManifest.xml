@@ -27,5 +27,10 @@
             android:name="io.fabric.ApiKey"
             android:value="0fb56fe06f33133715ba31d96efb67c79c12aec7" />
 
+        <provider
+            android:name=".data.MovieProvider"
+            android:authorities="@string/content_authority"
+            android:exported="false" />
+
     </application>
 </manifest>

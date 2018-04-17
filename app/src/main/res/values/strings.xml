@@ -20,5 +20,7 @@
     <string name="genres">Genres</string>
     <string name="small_image" translatable="false">/w185</string>
     <string name="large_image" translatable="false">/w500</string>
+
     <!--<string name="movie_db_api_key" translatable="false">[YOUR API KEY]</string>-->
+    <string name="content_authority" translatable="false">net.ouftech.popularmovies</string>
 </resources>

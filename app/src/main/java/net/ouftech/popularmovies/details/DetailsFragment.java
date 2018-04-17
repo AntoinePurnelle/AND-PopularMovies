@@ -17,6 +17,7 @@
 
 package net.ouftech.popularmovies.details;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import com.hannesdorfmann.fragmentargs.annotation.FragmentWithArgs;
 
 import net.ouftech.popularmovies.MainActivity;
 import net.ouftech.popularmovies.R;
+import net.ouftech.popularmovies.data.MovieContract;
 import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.commons.BaseFragment;
 import net.ouftech.popularmovies.commons.CallException;
@@ -294,8 +296,15 @@ public class DetailsFragment extends BaseFragment {
                         movie.tagline = tempMovie.tagline;
                         movie.hasDetailsLoaded = true;
                     }
+
                     displayData();
                     setProgressBarVisibility(View.GONE);
+
+                    // TODO remove this
+                    ContentResolver contentResolver = getContext().getContentResolver();
+                    contentResolver.insert(
+                            MovieContract.MovieEntry.CONTENT_URI,
+                            movie.toContentValues());
                 }
 
                 @Override
