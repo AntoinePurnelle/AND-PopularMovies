@@ -102,19 +102,18 @@ public class MovieProvider extends ContentProvider {
 
             case CODE_MOVIES:
                 db.beginTransaction();
-                int rowsInserted = 0;
+                long id;
                 try {
-                    long id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
-                    if (id != -1)
-                        rowsInserted++;
-
+                    id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
 
-                if (rowsInserted > 0 && getContext() != null)
+                if (id != -1 && getContext() != null)
                     getContext().getContentResolver().notifyChange(uri, null);
+
+                Logger.d(getLogTag(), String.format("Row %s inserted", id));
 
                 return uri;
             default:
@@ -123,9 +122,30 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection, String[]
-            selectionArgs) {
-        throw new RuntimeException("Not implemented");
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        switch (uriMatcher.match(uri)) {
+
+            case CODE_MOVIES:
+                db.beginTransaction();
+                int rowsUpdated;
+                try {
+                    rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, MovieContract.MovieEntry.COLUMN_ID + " = ?", selectionArgs);
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsUpdated > 0 && getContext() != null)
+                    getContext().getContentResolver().notifyChange(uri, null);
+
+                Logger.d(getLogTag(), String.format("%s row(s) affected by update", rowsUpdated));
+
+                return rowsUpdated;
+            default:
+                throw new UnsupportedOperationException("Unsupported uri for insert: " + uri);
+        }
     }
 
     @Override

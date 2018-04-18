@@ -168,10 +168,9 @@ public class DetailsFragment extends BaseFragment implements
     private Movie movie;
     private VideosAdapter videosAdapter;
 
-    private static final String movieLock = "movieLock";
-    private static final int ID_DETAIL_LOADER = 42;
+    private static final Object MOVIE_LOCK = new Object();
 
-    public static final String[] MOVIE_DETAIL_PROJECTION = {
+    private static final String[] MOVIE_DETAIL_PROJECTION = {
             MovieEntry.COLUMN_TAGLINE,
             MovieEntry.COLUMN_PRODUCTION_COUNTRIES,
             MovieEntry.COLUMN_GENRES,
@@ -384,12 +383,13 @@ public class DetailsFragment extends BaseFragment implements
                         return;
                     }
 
-                    synchronized (movieLock) {
+                    synchronized (MOVIE_LOCK) {
                         movie.countries = tempMovie.countries;
                         movie.genres = tempMovie.genres;
                         movie.runtime = tempMovie.runtime;
                         movie.tagline = tempMovie.tagline;
                         movie.hasDetailsLoadedFromNetwork = true;
+                        updateMovieInDBIfNecessary();
                     }
 
                     displayDeepDetails();
@@ -432,6 +432,7 @@ public class DetailsFragment extends BaseFragment implements
 
                     movie.hasVideosLoaded = true;
                     displayVideos(videosResult.videos);
+                    updateMovieInDBIfNecessary();
                 }
 
                 @Override
@@ -445,41 +446,47 @@ public class DetailsFragment extends BaseFragment implements
     }
 
     private void loadReviews(final int page) {
-        if (movie.shouldLoadReviewPage(page) && getActivity() != null) {
+        if (getActivity() != null) {
 
-            final String id = movie.id;
-            NetworkUtils.getReviews(getActivity(), id, new Callback<ReviewsResult>() {
-                @Override
-                public void onResponse(@NonNull Call<ReviewsResult> call, @NonNull Response<ReviewsResult> response) {
-                    ReviewsResult reviewsResult = response.body();
+            if (movie.shouldLoadReviewPage(page)) {
 
-                    if (reviewsResult == null) {
+                final String id = movie.id;
+                NetworkUtils.getReviews(getActivity(), id, new Callback<ReviewsResult>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ReviewsResult> call, @NonNull Response<ReviewsResult> response) {
+                        ReviewsResult reviewsResult = response.body();
 
-                        ResponseBody errorBody = response.errorBody();
-                        CallException callException = new CallException(response.code(), response.message(), errorBody, call);
+                        if (reviewsResult == null) {
 
-                        if (errorBody == null) {
-                            Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s", id, page), callException);
-                        } else {
-                            Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s. ErrorBody = %s", id, page, errorBody), callException);
+                            ResponseBody errorBody = response.errorBody();
+                            CallException callException = new CallException(response.code(), response.message(), errorBody, call);
+
+                            if (errorBody == null) {
+                                Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s", id, page), callException);
+                            } else {
+                                Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s. ErrorBody = %s", id, page, errorBody), callException);
+                            }
+
+                            return;
                         }
 
-                        return;
+                        movie.addReviews(reviewsResult.reviews);
+                        movie.reviewsPagesCount = reviewsResult.totalPages;
+                        movie.reviewsPagesLoadedCount = page;
+                        loadReviews(page + 1);
+                        initReviewsButton();
                     }
 
-                    movie.addReviews(reviewsResult.reviews);
-                    movie.reviewsPagesCount = reviewsResult.totalPages;
-                    movie.reviewsPagesLoadedCount = page;
-                    loadReviews(page + 1);
-                    initReviewsButton();
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ReviewsResult> call, @NonNull Throwable t) {
-                    Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s", id, page), t);
-                    setProgressBarVisibility(View.GONE);
-                }
-            });
+                    @Override
+                    public void onFailure(@NonNull Call<ReviewsResult> call, @NonNull Throwable t) {
+                        Logger.e(getLotTag(), String.format("Error while executing getReviews call for movie %s and page %s", id, page), t);
+                        setProgressBarVisibility(View.GONE);
+                    }
+                });
+            } else {
+                // has finished loading, can update in DB
+                updateMovieInDBIfNecessary();
+            }
         }
     }
 
@@ -492,14 +499,14 @@ public class DetailsFragment extends BaseFragment implements
             return;
         }
 
-        synchronized (movieLock) {
+        synchronized (MOVIE_LOCK) {
             movie.setVideos(videos);
             videosAdapter.swapData(videos);
         }
     }
 
     private void displayBaseDetails() {
-        synchronized (movieLock) {
+        synchronized (MOVIE_LOCK) {
             if (detailToolbar != null)
                 detailToolbar.setTitle(movie.title);
             if (ratingTv != null)
@@ -619,6 +626,8 @@ public class DetailsFragment extends BaseFragment implements
 
     @OnClick(R.id.detail_favorite_fab)
     protected void onFavoriteFabClick() {
+        if (getContext() == null)
+            return;
 
         if (movie.isFavorite) {
             movie.isFavorite = false;
@@ -634,6 +643,21 @@ public class DetailsFragment extends BaseFragment implements
         initFabButtonIcon();
     }
 
+    protected void updateMovieInDBIfNecessary() {
+        if (getContext() == null)
+            return;
+
+        if (!movie.isFavorite)
+            return; // Movie not in DB
+
+        Logger.d(getLotTag(), String.format("Updating Movie %s", movie.id));
+
+        ContentResolver contentResolver = getContext().getContentResolver();
+        contentResolver.update(
+                MovieEntry.CONTENT_URI,
+                movie.toContentValues(), null, new String[]{movie.id});
+    }
+
     private void initFabButtonIcon() {
         if (favoriteFab != null)
             favoriteFab.setImageResource(movie.isFavorite ? R.drawable.ic_favorite_white_24dp : R.drawable.ic_favorite_border_white_24dp);
@@ -645,8 +669,7 @@ public class DetailsFragment extends BaseFragment implements
         unbinder.unbind();
     }
 
-    synchronized
-    private void setProgressBarVisibility(final int visibility) {
+    private synchronized void setProgressBarVisibility(final int visibility) {
         if (isRunning() && progressBar != null)
             getBaseActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -663,5 +686,6 @@ public class DetailsFragment extends BaseFragment implements
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        // Nothing to implement
     }
 }
