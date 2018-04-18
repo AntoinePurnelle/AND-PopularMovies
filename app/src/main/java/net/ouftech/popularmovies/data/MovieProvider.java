@@ -21,11 +21,13 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import net.ouftech.popularmovies.commons.Logger;
+import net.ouftech.popularmovies.data.MovieContract.MovieEntry;
 
 public class MovieProvider extends ContentProvider {
 
@@ -50,7 +52,7 @@ public class MovieProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case CODE_MOVIES:
                 cursor = dbHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME,
+                        MovieEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -63,9 +65,9 @@ public class MovieProvider extends ContentProvider {
                 String[] selectionArguments = new String[]{normalizedUtcDateString};
 
                 cursor = dbHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME,
+                        MovieEntry.TABLE_NAME,
                         projection,
-                        MovieContract.MovieEntry.COLUMN_ID + " = ? ",
+                        MovieEntry.COLUMN_ID + " = ? ",
                         selectionArguments,
                         null,
                         null,
@@ -86,7 +88,41 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        throw new RuntimeException("Student, you need to implement the delete method!");
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        int numRowsDeleted = 0;
+        if (null == selection)
+            selection = "1";
+
+        switch (uriMatcher.match(uri)) {
+
+            case CODE_MOVIES:
+                db.beginTransaction();
+                try {
+                    numRowsDeleted = dbHelper.getWritableDatabase().delete(
+                            MovieEntry.TABLE_NAME,
+                            selection,
+                            selectionArgs);
+
+                    db.setTransactionSuccessful();
+                } catch (SQLiteException e) {
+                    Logger.e(getLogTag(), "Error while deleting an entity in DB", e);
+                } finally {
+                    db.endTransaction();
+                }
+
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if (numRowsDeleted != 0 && getContext() != null)
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        Logger.d(getLogTag(), String.format("%s row(s) deleted", numRowsDeleted));
+
+        return numRowsDeleted;
     }
 
     @Override
@@ -102,10 +138,12 @@ public class MovieProvider extends ContentProvider {
 
             case CODE_MOVIES:
                 db.beginTransaction();
-                long id;
+                long id = -1;
                 try {
-                    id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                    id = db.insert(MovieEntry.TABLE_NAME, null, values);
                     db.setTransactionSuccessful();
+                } catch (SQLiteException e) {
+                    Logger.e(getLogTag(), "Error while inserting an entity in DB", e);
                 } finally {
                     db.endTransaction();
                 }
@@ -129,10 +167,12 @@ public class MovieProvider extends ContentProvider {
 
             case CODE_MOVIES:
                 db.beginTransaction();
-                int rowsUpdated;
+                int rowsUpdated = 0;
                 try {
-                    rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, MovieContract.MovieEntry.COLUMN_ID + " = ?", selectionArgs);
+                    rowsUpdated = db.update(MovieEntry.TABLE_NAME, values, MovieEntry.COLUMN_ID + " = ?", selectionArgs);
                     db.setTransactionSuccessful();
+                } catch (SQLiteException e) {
+                    Logger.e(getLogTag(), "Error while updating an entity in DB", e);
                 } finally {
                     db.endTransaction();
                 }

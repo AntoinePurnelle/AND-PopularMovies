@@ -39,21 +39,21 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIE_TABLE =
                 "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                         MovieEntry.COLUMN_ID + " VARCHAR PRIMARY KEY, " +
-                        MovieEntry.COLUMN_TITLE + " VARCHAR NOT NULL," +
-                        MovieEntry.COLUMN_POSTER + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_RELEASE_DATE + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_OVERVIEW + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_VOTE_AVERAGE + " REAL NOT NULL, " +
-                        MovieEntry.COLUMN_VOTE_COUNT + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_ORIGINAL_LANGUAGE + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_ORIGINAL_TITLE + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_BACKDROP_PATH + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_TAGLINE + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_PRODUCTION_COUNTRIES + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_GENRES + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_RUNTIME + " INTEGER NOT NULL, " +
-                        MovieEntry.COLUMN_VIDEOS + " VARCHAR NOT NULL, " +
-                        MovieEntry.COLUMN_REVIEWS + " VARCHAR NOT NULL, " +
+                        MovieEntry.COLUMN_TITLE + " VARCHAR," +
+                        MovieEntry.COLUMN_POSTER + " VARCHAR, " +
+                        MovieEntry.COLUMN_RELEASE_DATE + " VARCHAR, " +
+                        MovieEntry.COLUMN_OVERVIEW + " VARCHAR, " +
+                        MovieEntry.COLUMN_VOTE_AVERAGE + " REAL, " +
+                        MovieEntry.COLUMN_VOTE_COUNT + " VARCHAR, " +
+                        MovieEntry.COLUMN_ORIGINAL_LANGUAGE + " VARCHAR, " +
+                        MovieEntry.COLUMN_ORIGINAL_TITLE + " VARCHAR, " +
+                        MovieEntry.COLUMN_BACKDROP_PATH + " VARCHAR, " +
+                        MovieEntry.COLUMN_TAGLINE + " VARCHAR, " +
+                        MovieEntry.COLUMN_PRODUCTION_COUNTRIES + " VARCHAR, " +
+                        MovieEntry.COLUMN_GENRES + " VARCHAR, " +
+                        MovieEntry.COLUMN_RUNTIME + " INTEGER , " +
+                        MovieEntry.COLUMN_VIDEOS + " VARCHAR, " +
+                        MovieEntry.COLUMN_REVIEWS + " VARCHAR, " +
                         " UNIQUE (" + MovieEntry.COLUMN_ID + ") ON CONFLICT REPLACE);";
 
         Logger.d(getLogTag(), String.format("Executing create DB command %s", SQL_CREATE_MOVIE_TABLE));

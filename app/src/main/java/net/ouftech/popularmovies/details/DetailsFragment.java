@@ -338,10 +338,23 @@ public class DetailsFragment extends BaseFragment implements
         if (cursorHasValidData) {
             Gson gson = new Gson();
             movie.tagline = data.getString(INDEX_COLUMN_TAGLINE);
-            movie.countries = new ArrayList<>(Arrays.asList(gson.fromJson(data.getString(INDEX_COLUMN_PRODUCTION_COUNTRIES), Country[].class)));
-            movie.genres = new ArrayList<>(Arrays.asList(gson.fromJson(data.getString(INDEX_COLUMN_GENRES), Genre[].class)));
-            movie.videos = new ArrayList<>(Arrays.asList(gson.fromJson(data.getString(INDEX_COLUMN_VIDEOS), Video[].class)));
-            movie.reviews = new ArrayList<>(Arrays.asList(gson.fromJson(data.getString(INDEX_COLUMN_REVIEWS), Review[].class)));
+
+            String stringValue = data.getString(INDEX_COLUMN_PRODUCTION_COUNTRIES);
+            if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                movie.countries = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Country[].class)));
+
+            stringValue = data.getString(INDEX_COLUMN_GENRES);
+            if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                movie.genres = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Genre[].class)));
+
+            stringValue = data.getString(INDEX_COLUMN_VIDEOS);
+            if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                movie.videos = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Video[].class)));
+
+            stringValue = data.getString(INDEX_COLUMN_REVIEWS);
+            if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                movie.reviews = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Review[].class)));
+
             movie.runtime = data.getInt(INDEX_COLUMN_RUNTIME);
 
             movie.hasDetailsLoadedFromDB = true;
@@ -631,7 +644,12 @@ public class DetailsFragment extends BaseFragment implements
 
         if (movie.isFavorite) {
             movie.isFavorite = false;
-            // TODO delete from DB
+            movie.hasDetailsLoadedFromDB = false;
+            ContentResolver contentResolver = getContext().getContentResolver();
+            contentResolver.delete(
+                    MovieEntry.CONTENT_URI,
+                    MovieEntry.COLUMN_ID + " = ?",
+                    new String[]{movie.id});
         } else {
             movie.isFavorite = true;
             ContentResolver contentResolver = getContext().getContentResolver();
