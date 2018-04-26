@@ -656,6 +656,9 @@ public class DetailsFragment extends BaseFragment implements
                     MovieEntry.CONTENT_URI,
                     MovieEntry.COLUMN_ID + " = ?",
                     new String[]{movie.id});
+
+            if (MainActivity.getSortCriteria() == MainActivity.SORT_FAVORITES)
+                imageView.setTransitionName(null);
         } else {
             movie.isFavorite = true;
             ContentResolver contentResolver = mainActivity.getContentResolver();
@@ -665,7 +668,6 @@ public class DetailsFragment extends BaseFragment implements
         }
 
         initFabButtonIcon();
-        imageView.setTransitionName(null);
     }
 
     protected void updateMovieInDBIfNecessary() {

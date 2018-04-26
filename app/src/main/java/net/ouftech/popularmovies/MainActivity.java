@@ -97,9 +97,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private static final String KEY_TOP_RATED_MOVIES = "topRatedMovies";
     private static final String KEY_SORT_CRITERIA = "sortCriteria";
     private static final int MOVIES_LOADER = 42;
-    private static final int SORT_FAVORITES = 0;
-    private static final int SORT_POPULAR = 1;
-    private static final int SORT_TOP_RATED = 2;
+    public static final int SORT_FAVORITES = 0;
+    public static final int SORT_POPULAR = 1;
+    public static final int SORT_TOP_RATED = 2;
 
     public static int currentFavoritesPosition = 0;
     public static int currentPopularPosition = 0;
@@ -123,6 +123,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_favorite:
+                        hideErrorMessage();
                         gridFragment.swapData(favoriteMovies);
                         sortCriteria = SORT_FAVORITES;
                         restartLoader();
@@ -147,13 +148,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             }
         });
 
-        getSupportLoaderManager().initLoader(MOVIES_LOADER, null, this);
-
         if (savedInstanceState != null) {
             currentFavoritesPosition = savedInstanceState.getInt(KEY_CURRENT_POPULAR_POSITION, 0);
             currentPopularPosition = savedInstanceState.getInt(KEY_CURRENT_POPULAR_POSITION, 0);
             currentTopRatedPosition = savedInstanceState.getInt(KEY_CURRENT_TOP_RATED_POSITION, 0);
             isShowingDetails = savedInstanceState.getBoolean(KEY_SHOWING_DETAILS);
+            favoriteMovies = savedInstanceState.getParcelableArrayList(KEY_FAVORITES_MOVIES);
             popularMovies = savedInstanceState.getParcelableArrayList(KEY_POPULAR_MOVIES);
             topRatedMovies = savedInstanceState.getParcelableArrayList(KEY_TOP_RATED_MOVIES);
             sortCriteria = savedInstanceState.getInt(KEY_SORT_CRITERIA, SORT_POPULAR);
@@ -182,6 +182,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
             // Return here to prevent adding additional GridFragments when changing orientation.
             return;
+        } else {
+            getSupportLoaderManager().initLoader(MOVIES_LOADER, null, this);
         }
 
         gridFragment = new GridFragment();
@@ -270,6 +272,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
     }
 
+    private void hideErrorMessage() {
+        gridContainer.setVisibility(View.VISIBLE);
+        errorMessageDisplay.setVisibility(View.GONE);
+    }
+
     private void showErrorMessage() {
         gridContainer.setVisibility(View.GONE);
         errorMessageDisplay.setVisibility(View.VISIBLE);
@@ -285,6 +292,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         outState.putBoolean(KEY_SHOWING_DETAILS, isShowingDetails);
         outState.putParcelableArrayList(KEY_POPULAR_MOVIES, popularMovies);
         outState.putParcelableArrayList(KEY_TOP_RATED_MOVIES, topRatedMovies);
+        outState.putParcelableArrayList(KEY_FAVORITES_MOVIES, favoriteMovies);
     }
 
     public ArrayList<Movie> getMovies() {
@@ -464,5 +472,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         if (sortCriteria == SORT_FAVORITES)
             swapData();
+    }
+
+    public static int getSortCriteria() {
+        return sortCriteria;
     }
 }
