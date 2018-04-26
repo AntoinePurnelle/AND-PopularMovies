@@ -14,6 +14,7 @@
     <string name="backdrop_content_description">Movie cover image</string>
     <string name="poster_content_description">Movie poster image</string>
     <string name="open_reviews_content_description">Open reviews</string>
+    <string name="open_video_content_description">Open video</string>
     <string name="country">Country</string>
     <string name="countries">Countries</string>
     <string name="genre">Genre</string>

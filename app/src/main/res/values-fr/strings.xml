@@ -16,4 +16,8 @@
     <string name="countries">Pays</string>
     <string name="genre">Genre</string>
     <string name="genres">Genres</string>
+    <string name="open_reviews_content_description">Ouvrir les avis</string>
+    <string name="favorites">Favoris</string>
+    <string name="empty_list_message">Il n\'y a rien ici</string>
+    <string name="open_video_content_description">Ouvrir la vidéo</string>
 </resources>

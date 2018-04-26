@@ -28,7 +28,8 @@
         android:id="@+id/video_card_thumbnail_iv"
         android:layout_width="@dimen/video_item_width"
         android:layout_height="@dimen/video_item_height"
-        android:src="@drawable/ic_movie_24dp" />
+        android:src="@drawable/ic_movie_24dp"
+        android:contentDescription="@string/open_video_content_description"/>
 
     <TextView
         android:id="@+id/video_card_title_tv"
