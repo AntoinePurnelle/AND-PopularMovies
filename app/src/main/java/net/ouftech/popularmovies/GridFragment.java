@@ -95,6 +95,12 @@ public class GridFragment extends BaseFragment {
         if (recyclerView != null && recyclerView.getAdapter() != null) {
             recyclerView.getAdapter().notifyDataSetChanged();
             recyclerView.scrollToPosition(MainActivity.getCurrentPosition());
+
+            if (getFragmentManager() != null) {
+                ImagePagerFragment imagePagerFragment = ((ImagePagerFragment) getFragmentManager().findFragmentByTag(ImagePagerFragment.class.getSimpleName()));
+                if (imagePagerFragment != null)
+                    imagePagerFragment.getImagePagerAdapter().notifyDataSetChanged();
+            }
         }
     }
 

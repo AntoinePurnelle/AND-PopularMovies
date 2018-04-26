@@ -19,17 +19,30 @@ package net.ouftech.popularmovies;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.common.util.ListUtils;
+import com.google.gson.Gson;
 
+import net.ouftech.popularmovies.data.MovieContract;
+import net.ouftech.popularmovies.data.MovieContract.MovieEntry;
+import net.ouftech.popularmovies.model.Country;
+import net.ouftech.popularmovies.model.Genre;
 import net.ouftech.popularmovies.model.Movie;
 import net.ouftech.popularmovies.model.Result;
 import net.ouftech.popularmovies.commons.BaseActivity;
@@ -37,8 +50,12 @@ import net.ouftech.popularmovies.commons.CallException;
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.commons.Logger;
 import net.ouftech.popularmovies.commons.NetworkUtils;
+import net.ouftech.popularmovies.model.Review;
+import net.ouftech.popularmovies.model.Video;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import io.fabric.sdk.android.Fabric;
@@ -47,7 +64,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @NonNull
     @Override
@@ -108,15 +125,18 @@ public class MainActivity extends BaseActivity {
                     case R.id.navigation_favorite:
                         gridFragment.swapData(favoriteMovies);
                         sortCriteria = SORT_FAVORITES;
-                        emptyMessageDisplay.setVisibility(View.VISIBLE);
+                        restartLoader();
+                        emptyMessageDisplay.setVisibility(favoriteMovies == null || favoriteMovies.isEmpty() ? View.VISIBLE : View.GONE);
                         return true;
                     case R.id.navigation_popular:
+                        unsetFavorites(popularMovies);
                         gridFragment.swapData(popularMovies);
                         sortCriteria = SORT_POPULAR;
                         loadMovies(popularMovies, NetworkUtils.TMDB_POPULAR_PATH);
                         emptyMessageDisplay.setVisibility(View.GONE);
                         return true;
                     case R.id.navigation_top_rated:
+                        unsetFavorites(topRatedMovies);
                         gridFragment.swapData(topRatedMovies);
                         sortCriteria = SORT_TOP_RATED;
                         loadMovies(topRatedMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
@@ -126,6 +146,8 @@ public class MainActivity extends BaseActivity {
                 return false;
             }
         });
+
+        getSupportLoaderManager().initLoader(MOVIES_LOADER, null, this);
 
         if (savedInstanceState != null) {
             currentFavoritesPosition = savedInstanceState.getInt(KEY_CURRENT_POPULAR_POSITION, 0);
@@ -152,8 +174,7 @@ public class MainActivity extends BaseActivity {
                 case SORT_FAVORITES:
                 default:
                     bottomNavigationView.setSelectedItemId(R.id.navigation_favorite);
-                    loadMovies(favoriteMovies, NetworkUtils.TMDB_TOP_RATED_PATH);
-                    emptyMessageDisplay.setVisibility(View.VISIBLE);
+                    emptyMessageDisplay.setVisibility(favoriteMovies == null || favoriteMovies.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             if (isShowingDetails)
@@ -172,6 +193,11 @@ public class MainActivity extends BaseActivity {
         bottomNavigationView.setSelectedItemId(R.id.navigation_popular);
     }
 
+    public void restartLoader() {
+        if (sortCriteria == SORT_FAVORITES)
+            getSupportLoaderManager().restartLoader(MOVIES_LOADER, null, MainActivity.this);
+    }
+
     private void swapData() {
 
         switch (sortCriteria) {
@@ -184,6 +210,15 @@ public class MainActivity extends BaseActivity {
             case SORT_FAVORITES:
             default:
                 gridFragment.swapData(favoriteMovies);
+        }
+    }
+
+    private void unsetFavorites(List<Movie> movies) {
+        if (movies != null) {
+            for (Movie movie : movies) {
+                movie.isFavorite = false;
+                movie.hasDetailsLoadedFromDB = false;
+            }
         }
     }
 
@@ -231,6 +266,7 @@ public class MainActivity extends BaseActivity {
             });
         } else {
             swapData();
+            setProgressBarVisibility(View.GONE);
         }
     }
 
@@ -312,6 +348,10 @@ public class MainActivity extends BaseActivity {
     public void onBackPressed() {
         super.onBackPressed();
         if (isShowingDetails) {
+
+            if (sortCriteria == SORT_FAVORITES)
+                restartLoader();
+
             isShowingDetails = false;
             if (bottomNavigationView != null) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
@@ -341,5 +381,88 @@ public class MainActivity extends BaseActivity {
                     loadingIndicator.setVisibility(visibility);
                 }
             });
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        switch (id) {
+            case MOVIES_LOADER:
+                Uri queryUri = MovieEntry.CONTENT_URI;
+                String sortOrder = MovieEntry.COLUMN_TITLE + " ASC";
+
+                return new CursorLoader(this,
+                        queryUri,
+                        null,
+                        null,
+                        null,
+                        sortOrder);
+
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + id);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        Logger.d(getLotTag(), "");
+
+        favoriteMovies = new ArrayList<>();
+
+        if (data.moveToFirst()) {
+            emptyMessageDisplay.setVisibility(View.GONE);
+
+            do {
+                Movie movie = new Movie();
+                movie.id = data.getString(data.getColumnIndex(MovieEntry.COLUMN_ID));
+                movie.title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
+                movie.posterPath = data.getString(data.getColumnIndex(MovieEntry.COLUMN_POSTER));
+                movie.releaseDate = data.getString(data.getColumnIndex(MovieEntry.COLUMN_RELEASE_DATE));
+                movie.overview = data.getString(data.getColumnIndex(MovieEntry.COLUMN_OVERVIEW));
+                movie.voteAverage = data.getFloat(data.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE));
+                movie.voteCount = data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_COUNT));
+                movie.originalLanguage = data.getString(data.getColumnIndex(MovieEntry.COLUMN_ORIGINAL_LANGUAGE));
+                movie.originalTitle = data.getString(data.getColumnIndex(MovieEntry.COLUMN_ORIGINAL_TITLE));
+                movie.backdropPath = data.getString(data.getColumnIndex(MovieEntry.COLUMN_BACKDROP_PATH));
+                movie.tagline = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TAGLINE));
+                movie.runtime = data.getInt(data.getColumnIndex(MovieEntry.COLUMN_RUNTIME));
+
+                Gson gson = new Gson();
+                String stringValue = data.getString(data.getColumnIndex(MovieEntry.COLUMN_PRODUCTION_COUNTRIES));
+                if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                    movie.countries = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Country[].class)));
+
+                stringValue = data.getString(data.getColumnIndex(MovieEntry.COLUMN_GENRES));
+                if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                    movie.genres = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Genre[].class)));
+
+                stringValue = data.getString(data.getColumnIndex(MovieEntry.COLUMN_VIDEOS));
+                if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                    movie.videos = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Video[].class)));
+
+                stringValue = data.getString(data.getColumnIndex(MovieEntry.COLUMN_REVIEWS));
+                if (!TextUtils.isEmpty(stringValue) && !"null".equals(stringValue))
+                    movie.reviews = new ArrayList<>(Arrays.asList(gson.fromJson(stringValue, Review[].class)));
+
+                movie.hasDetailsLoadedFromDB = true;
+                movie.isFavorite = true;
+
+                favoriteMovies.add(movie);
+            } while (data.moveToNext());
+        } else {
+            if (sortCriteria == SORT_FAVORITES)
+                emptyMessageDisplay.setVisibility(View.VISIBLE);
+        }
+
+        if (sortCriteria == SORT_FAVORITES)
+            swapData();
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        favoriteMovies = new ArrayList<>();
+
+        if (sortCriteria == SORT_FAVORITES)
+            swapData();
     }
 }

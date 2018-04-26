@@ -18,7 +18,10 @@
 package net.ouftech.popularmovies;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.view.ViewGroup;
 
 import net.ouftech.popularmovies.commons.CollectionUtils;
 import net.ouftech.popularmovies.details.DetailsFragmentBuilder;
@@ -27,6 +30,7 @@ import net.ouftech.popularmovies.details.DetailsFragmentBuilder;
 public class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
     private Fragment fragment;
+    int count = 0;
 
     public ImagePagerAdapter(Fragment fragment) {
         // Note: Initialize with the child fragment manager.
@@ -36,10 +40,10 @@ public class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        if (fragment != null && fragment.getActivity() != null && fragment.getActivity() instanceof MainActivity)
-            return CollectionUtils.getSize(((MainActivity) fragment.getActivity()).getMovies());
+        if (count == 0 && fragment != null && fragment.getActivity() != null && fragment.getActivity() instanceof MainActivity)
+            count = CollectionUtils.getSize(((MainActivity) fragment.getActivity()).getMovies());
 
-        return 0;
+        return count;
     }
 
     @Override

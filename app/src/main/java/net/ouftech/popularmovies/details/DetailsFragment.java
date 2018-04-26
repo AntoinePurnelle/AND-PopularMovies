@@ -230,8 +230,13 @@ public class DetailsFragment extends BaseFragment implements
             loadReviews(0);
         } else {
             // Movie is coming from network --> first, try to query from DB
-            if (getActivity() != null)
-                getActivity().getSupportLoaderManager().initLoader(Integer.parseInt(movie.id), null, this);
+            if (getActivity() != null) {
+                LoaderManager loaderManager = getActivity().getSupportLoaderManager();
+                if (loaderManager.getLoader(Integer.parseInt(movie.id)) != null)
+                    loaderManager.restartLoader(Integer.parseInt(movie.id), null, this);
+                else
+                    loaderManager.initLoader(Integer.parseInt(movie.id), null, this);
+            }
         }
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
@@ -639,26 +644,28 @@ public class DetailsFragment extends BaseFragment implements
 
     @OnClick(R.id.detail_favorite_fab)
     protected void onFavoriteFabClick() {
-        if (getContext() == null)
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity == null)
             return;
 
         if (movie.isFavorite) {
             movie.isFavorite = false;
             movie.hasDetailsLoadedFromDB = false;
-            ContentResolver contentResolver = getContext().getContentResolver();
+            ContentResolver contentResolver = mainActivity.getContentResolver();
             contentResolver.delete(
                     MovieEntry.CONTENT_URI,
                     MovieEntry.COLUMN_ID + " = ?",
                     new String[]{movie.id});
         } else {
             movie.isFavorite = true;
-            ContentResolver contentResolver = getContext().getContentResolver();
+            ContentResolver contentResolver = mainActivity.getContentResolver();
             contentResolver.insert(
                     MovieEntry.CONTENT_URI,
                     movie.toContentValues());
         }
 
         initFabButtonIcon();
+        imageView.setTransitionName(null);
     }
 
     protected void updateMovieInDBIfNecessary() {

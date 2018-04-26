@@ -52,13 +52,14 @@ public class ImagePagerFragment extends BaseFragment {
     }
 
     private ViewPager viewPager;
+    private ImagePagerAdapter imagePagerAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         viewPager = (ViewPager) super.onCreateView(inflater, container, savedInstanceState);
-        viewPager.setAdapter(new ImagePagerAdapter(this));
+        viewPager.setAdapter(imagePagerAdapter = new ImagePagerAdapter(this));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         viewPager.setCurrentItem(MainActivity.getCurrentPosition());
@@ -69,8 +70,6 @@ public class ImagePagerFragment extends BaseFragment {
                     ((MainActivity) getActivity()).setCurrentPosition(position);
             }
         });
-
-        viewPager.setOffscreenPageLimit(2);
 
         prepareSharedElementTransition();
 
@@ -113,5 +112,9 @@ public class ImagePagerFragment extends BaseFragment {
                         sharedElements.put(names.get(0), view.findViewById(R.id.image));
                     }
                 });
+    }
+
+    public ImagePagerAdapter getImagePagerAdapter() {
+        return imagePagerAdapter;
     }
 }

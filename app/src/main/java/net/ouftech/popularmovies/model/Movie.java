@@ -195,6 +195,8 @@ public class Movie implements Parcelable {
         return contentValues;
     }
 
+    public Movie(){}
+
     protected Movie(Parcel in) {
         hasDetailsLoadedFromNetwork = in.readByte() != 0x00;
         hasVideosLoaded = in.readByte() != 0x00;
